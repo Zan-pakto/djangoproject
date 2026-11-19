@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage {{ complaint.complaint_id }} – UniResolve Admin{% endblock %}
+{% block page_title %}Administrative Complaint Action{% endblock %}
+
+{% block content %}
+<div class="mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+  <a href="{% url 'all_complaints' %}" class="btn btn-sm btn-outline-secondary fw-semibold">
+    <i class="bi bi-arrow-left me-1"></i> Back to All Grievances
+  </a>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'printable_receipt' complaint.complaint_id %}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
+      <i class="bi bi-printer-fill me-1"></i> Official Grievance Dossier
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left Column: Complaint & Student Details -->
+  <div class="col-lg-7">
+    <div class="card-custom bg-white mb-4">
+      <div class="card-header-clean d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge bg-primary-subtle text-primary border font-monospace fw-bold fs-6 py-2 px-3">
+            {{ complaint.complaint_id }}
+          </span>
+          <span class="badge-category-modern">
+            <i class="bi {{ complaint.category_icon }} text-primary"></i> {{ complaint.get_category_display }}
+          </span>
+          <span class="badge-priority {{ complaint.priority_badge_class }}">
+            {% if complaint.priority == 'Critical' %}<span class="pulse-critical"></span>{% endif %}
+            {{ complaint.priority }} Priority
+          </span>
+          {% if complaint.is_anonymous %}
+            <span class="badge badge-anonymous"><i class="bi bi-incognito"></i> Protected Anonymous</span>
+          {% endif %}
+        </div>
+        <div>
+          <span class="badge-status-modern {% if complaint.status == 'Resolved' %}status-resolved{% elif complaint.status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+            <span class="status-pulse-dot {% if complaint.status == 'Resolved' %}dot-resolved{% elif complaint.status == 'In Progress' %}dot-progress{% else %}dot-pending{% endif %}"></span>
+            Current: {{ complaint.status }}
+          </span>
+          {% if complaint.is_overdue %}
+            <span class="badge badge-overdue ms-1">Overdue</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="p-4">
+        <!-- Title -->
+        <h3 class="fw-bold text-dark mb-3">{{ complaint.title }}</h3>
+
+        <!-- Description -->
+        <div class="mb-4">
+          <h6 class="text-uppercase text-muted fw-bold small mb-2">Grievance Description</h6>
+          <div class="p-3 rounded-3 text-dark border" style="background-color: #f8fafc; white-space: pre-line; line-height: 1.6;">
+            {{ complaint.description }}
+          </div>
+        </div>
+
+        <!-- Optional Image Attachment -->
+        {% if complaint.image %}
+          <div class="mb-4">
+            <h6 class="text-uppercase text-muted fw-bold small mb-2">Photographic Evidence Provided</h6>
+            <div class="p-3 bg-light rounded-3 border d-inline-block">
+              <div role="button" data-bs-toggle="modal" data-bs-target="#adminImageModal" style="cursor: pointer;">
+                <img src="{{ complaint.image.url }}" alt="Evidence Photo" class="img-fluid rounded-3 shadow-sm border" style="max-height: 250px; display: block;">
+                <div class="small text-muted mt-2 d-flex align-items-center gap-2">
+                  <span class="badge bg-primary text-white"><i class="bi bi-arrows-fullscreen me-1"></i> Fullscreen Preview</span>
+                  <span>Click image to examine full-resolution evidence</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Modal -->
+            <div class="modal fade" id="adminImageModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg">
+                  <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-bold">Evidence: {{ complaint.complaint_id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-center p-3 bg-dark">
+                    <img src="{{ complaint.image.url }}" alt="Full Preview" class="img-fluid rounded-2 shadow" style="max-height: 70vh; object-fit: contain;">
+                  </div>
+                  <div class="modal-footer border-top bg-light">
+                    <a href="{{ complaint.image.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                      <i class="bi bi-box-arrow-up-right me-1"></i> Open in New Tab
+                    </a>
+                    <a href="{{ complaint.image.url }}" download class="btn btn-sm btn-primary-modern">
+                      <i class="bi bi-download me-1"></i> Download File
+                    </a>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Student Profile Information Card -->
+        <div class="rounded-3 p-3 border mb-4" style="background: #f8fafc;">
+          <h6 class="fw-bold text-dark mb-3 border-bottom pb-2 d-flex align-items-center justify-content-between">
+            <span class="d-flex align-items-center gap-2">
+              <i class="bi bi-person-badge-fill text-primary"></i> Submitting Student Information
+            </span>
+            {% if complaint.is_anonymous %}
+              <span class="badge badge-anonymous"><i class="bi bi-incognito"></i> Identity Concealed</span>
+            {% endif %}
+          </h6>
+          <div class="row g-3 small">
+            <div class="col-sm-6">
+              <span class="text-muted d-block">Student Name:</span>
+              <strong class="text-dark fs-6">{{ complaint.get_public_student_name }}</strong>
+            </div>
+            <div class="col-sm-6">
+              <span class="text-muted d-block">Registration Number:</span>
+              <strong class="text-primary font-monospace fs-6">{{ complaint.get_public_reg_number }}</strong>
+            </div>
+            <div class="col-sm-6">
+              <span class="text-muted d-block">Department / Course:</span>
+              <span class="text-dark">{{ complaint.student.profile.department|default:"General Academic" }}</span>
+            </div>
+            <div class="col-sm-6">
+              <span class="text-muted d-block">Submission Timestamp:</span>
+              <span class="text-dark">{{ complaint.created_at|date:"F d, Y h:i A" }}</span>
+            </div>
+          </div>
+        </div>
+
+        {% if complaint.satisfaction_rating %}
+          <!-- Student Feedback Review Card -->
+          <div class="rounded-3 p-3 border border-success-subtle bg-light">
+            <h6 class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-star-fill text-warning"></i> Student Redressal Rating &amp; Review
+            </h6>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="star-rating-display">
+                {% for i in "12345"|make_list %}
+                  {% if forloop.counter <= complaint.satisfaction_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+              <span class="fw-bold text-dark">({{ complaint.satisfaction_rating }}/5)</span>
+            </div>
+            {% if complaint.student_feedback %}
+              <p class="text-muted small fst-italic mb-0 bg-white p-2 rounded border">"{{ complaint.student_feedback }}"</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Administrative Action Form & Audit Trail -->
+  <div class="col-lg-5">
+    <!-- Action Form Card -->
+    <div class="card-custom bg-white mb-4">
+      <div class="card-header-clean" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff;">
+        <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+          <i class="bi bi-shield-shaded text-primary"></i> Update Status &amp; Respond
+        </h5>
+        <small class="text-white-50">Changes are logged immediately to the student's audit trail</small>
+      </div>
+
+      <div class="p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 small mb-3 border-0">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Status Dropdown -->
+          <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label fw-bold">
+              Lifecycle Status <span class="text-danger">*</span>
+            </label>
+            {{ form.status }}
+            <div class="form-text small text-muted">
+              Select <strong>In Progress</strong> when action is underway, or <strong>Resolved</strong> once verified.
+            </div>
+            {% if form.status.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.status.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Assigned Authority / Department -->
+          <div class="mb-3">
+            <label for="{{ form.assigned_to.id_for_label }}" class="form-label fw-bold">
+              {{ form.assigned_to.label }}
+            </label>
+            {{ form.assigned_to }}
+            <div class="form-text small text-muted">e.g. IT Cell, Maintenance Division, Hostel 2 Warden.</div>
+            {% if form.assigned_to.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.assigned_to.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Target Resolution Date (ETA) -->
+          <div class="mb-3">
+            <label for="{{ form.expected_resolution_date.id_for_label }}" class="form-label fw-bold">
+              {{ form.expected_resolution_date.label }}
+            </label>
+            {{ form.expected_resolution_date }}
+            <div class="form-text small text-muted">Target completion date for tracking turnaround compliance.</div>
+            {% if form.expected_resolution_date.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.expected_resolution_date.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Official Administrative Response -->
+          <div class="mb-3">
+            <label for="{{ form.admin_response.id_for_label }}" class="form-label fw-bold">
+              Official Response to Student
+            </label>
+            {{ form.admin_response }}
+            <div class="form-text small text-muted">
+              This response is directly displayed to the student in their dashboard and grievance view.
+            </div>
+            {% if form.admin_response.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.admin_response.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Internal Audit Remarks -->
+          <div class="mb-4">
+            <label for="{{ form.remarks.id_for_label }}" class="form-label fw-bold">
+              Status Change Audit Remarks <span class="text-muted fw-normal">(Optional)</span>
+            </label>
+            {{ form.remarks }}
+            <div class="form-text small text-muted">
+              Work order numbers, technician names, or notes saved permanently in the history log.
+            </div>
+            {% if form.remarks.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.remarks.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary-modern w-100 py-3 fw-bold shadow">
+            <i class="bi bi-save2-fill me-2"></i> Save Changes &amp; Log History
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- History Audit Timeline Card -->
+    <div class="card-custom bg-white p-4">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h6 class="fw-bold text-dark mb-0">
+          <i class="bi bi-clock-history text-primary me-2"></i> Audit History ({{ history_entries.count }})
+        </h6>
+        <a href="{% url 'complaint_history' complaint.complaint_id %}" class="small text-primary fw-bold" target="_blank">
+          Full Timeline <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+      </div>
+
+      <div class="timeline-modern" style="margin: 0.5rem 0 0.5rem 0.5rem;">
+        {% for entry in history_entries %}
+          <div class="timeline-node">
+            <div class="timeline-node-marker">
+              <i class="bi bi-dot"></i>
+            </div>
+            <div class="timeline-node-card p-3">
+              <div class="fw-bold text-dark small mb-1">
+                {{ entry.previous_status }} &rarr; {{ entry.new_status }}
+              </div>
+              <div class="text-muted" style="font-size: 0.72rem;">
+                {{ entry.timestamp|date:"M d, Y h:i A" }} &bull;
+                {{ entry.updated_by.get_full_name|default:entry.updated_by.username|default:"System" }}
+              </div>
+              {% if entry.remarks %}
+                <div class="text-secondary mt-1 small" style="font-size: 0.82rem;">
+                  {{ entry.remarks }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <div class="text-muted small">No audit history entries found.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit Log: {{ complaint.complaint_id }} – UniResolve{% endblock %}
+{% block page_title %}Audit Trail &amp; Status Log{% endblock %}
+
+{% block content %}
+<div class="mb-3 d-flex justify-content-between align-items-center">
+  <a href="{% url 'complaint_detail' complaint.complaint_id %}" class="btn btn-sm btn-outline-secondary fw-semibold">
+    <i class="bi bi-arrow-left me-1"></i> Back to Grievance Details
+  </a>
+  <span class="badge-status-modern {% if complaint.status == 'Resolved' %}status-resolved{% elif complaint.status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+    <span class="status-pulse-dot {% if complaint.status == 'Resolved' %}dot-resolved{% elif complaint.status == 'In Progress' %}dot-progress{% else %}dot-pending{% endif %}"></span>
+    Current: {{ complaint.status }}
+  </span>
+</div>
+
+<!-- Header Card -->
+<div class="card-custom bg-white p-4 mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+        <span class="badge bg-primary-subtle text-primary border font-monospace fw-bold">
+          {{ complaint.complaint_id }}
+        </span>
+        <span class="badge-category-modern">
+          <i class="bi {{ complaint.category_icon }} text-primary"></i> {{ complaint.get_category_display }}
+        </span>
+        <span class="badge-priority {{ complaint.priority_badge_class }}">
+          {{ complaint.priority }} Priority
+        </span>
+        {% if complaint.is_anonymous %}
+          <span class="badge badge-anonymous"><i class="bi bi-incognito"></i> Anonymous Submission</span>
+        {% endif %}
+      </div>
+      <h3 class="fw-bold text-dark mb-1">{{ complaint.title }}</h3>
+      <p class="text-muted small mb-0">
+        Submitted by <strong>{{ complaint.get_public_student_name }}</strong>
+        ({{ complaint.get_public_reg_number }}) on {{ complaint.created_at|date:"F d, Y h:i A" }}
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Audit Timeline Card -->
+<div class="card-custom bg-white p-4">
+  <h5 class="fw-bold text-dark mb-2">
+    <i class="bi bi-clock-history text-primary me-2"></i> Chronological Audit Log
+  </h5>
+  <p class="text-muted small mb-4">
+    Every transition in grievance status and official note is permanently logged below with timestamp and author attribution.
+  </p>
+
+  <div class="timeline-modern">
+    {% for entry in history_entries %}
+      <div class="timeline-node">
+        <div class="timeline-node-marker">
+          <i class="bi bi-check-lg"></i>
+        </div>
+        <div class="timeline-node-card">
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-2">
+            <div>
+              <span class="badge bg-secondary me-2">{{ entry.previous_status }}</span>
+              <i class="bi bi-arrow-right text-muted me-2"></i>
+              <span class="badge-status-modern {% if entry.new_status == 'Resolved' %}status-resolved{% elif entry.new_status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+                {{ entry.new_status }}
+              </span>
+            </div>
+            <div class="text-muted small mt-1 mt-sm-0">
+              <i class="bi bi-calendar3 me-1"></i> {{ entry.timestamp|date:"M d, Y" }} at {{ entry.timestamp|time:"h:i:s A" }}
+            </div>
+          </div>
+
+          <div class="text-muted small mb-2 d-flex align-items-center gap-2">
+            <i class="bi bi-person-check-fill text-primary"></i>
+            <span>Action taken by: <strong>{{ entry.updated_by.get_full_name|default:entry.updated_by.username|default:"System" }}</strong></span>
+            {% if entry.updated_by.profile.is_administrator or entry.updated_by.is_staff %}
+              <span class="badge bg-danger text-white py-0 px-2" style="font-size: 0.65rem;">Administrator</span>
+            {% else %}
+              <span class="badge bg-info text-dark py-0 px-2" style="font-size: 0.65rem;">Student</span>
+            {% endif %}
+          </div>
+
+          {% if entry.remarks %}
+            <div class="p-3 bg-light rounded-3 border text-dark mt-2" style="line-height: 1.5; font-size: 0.92rem;">
+              <strong class="text-secondary small d-block mb-1">Remarks / Audit Note:</strong>
+              {{ entry.remarks|linebreaksbr }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center py-4 text-muted">
+        <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+        No status transitions recorded yet.
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

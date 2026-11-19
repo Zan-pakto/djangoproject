@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}404 – Page Not Found | CampusCare{% endblock %}
+{% block page_title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6 text-center">
+      <div class="card-custom bg-white p-5 border shadow-sm rounded-4">
+        <div class="stat-icon-glow glow-blue mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2.75rem;">
+          <i class="bi bi-compass"></i>
+        </div>
+
+        <span class="badge bg-primary-subtle text-primary font-monospace fw-bold px-3 py-1 mb-2 fs-6">
+          HTTP 404 ERROR
+        </span>
+
+        <h2 class="fw-bold text-dark mb-2">Resource or Grievance Not Found</h2>
+        <p class="text-muted mb-4 small" style="line-height: 1.6;">
+          The page or complaint record you requested doesn't exist, has been relocated, or the URL was entered incorrectly.
+        </p>
+
+        <div class="p-3 bg-light rounded-3 border text-start small mb-4">
+          <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+            <i class="bi bi-lightbulb-fill text-warning"></i> Helpful Tips:
+          </div>
+          <ul class="text-muted ps-3 mb-0">
+            <li>Verify your Complaint ID format (e.g. <code>CMP-2026-0001</code>).</li>
+            <li>Ensure you are signed in with the account that filed the complaint.</li>
+            <li>Return to your dashboard to review all active grievances.</li>
+          </ul>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+          <a href="{% url 'dashboard_redirect' %}" class="btn btn-primary-modern px-4 py-2 fw-semibold">
+            <i class="bi bi-speedometer2 me-1"></i> Return to Dashboard
+          </a>
+          <a href="{% url 'landing' %}" class="btn btn-outline-secondary px-3 py-2 fw-medium">
+            <i class="bi bi-house me-1"></i> Public Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block public_content %}
+<div class="container py-5 my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6 text-center">
+      <div class="card-custom bg-white p-5 border shadow-sm rounded-4">
+        <div class="stat-icon-glow glow-blue mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2.75rem;">
+          <i class="bi bi-compass"></i>
+        </div>
+
+        <span class="badge bg-primary-subtle text-primary font-monospace fw-bold px-3 py-1 mb-2 fs-6">
+          HTTP 404 ERROR
+        </span>
+
+        <h2 class="fw-bold text-dark mb-2">Page Not Found</h2>
+        <p class="text-muted mb-4 small">
+          The requested page could not be located on the CampusCare server.
+        </p>
+
+        <div class="d-flex justify-content-center gap-2">
+          <a href="{% url 'landing' %}" class="btn btn-primary-modern px-4 py-2">
+            <i class="bi bi-house me-1"></i> Return to Home
+          </a>
+          <a href="{% url 'login' %}" class="btn btn-outline-secondary px-3 py-2">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Portal Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

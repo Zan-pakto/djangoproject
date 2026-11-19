@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Grievances – UniResolve{% endblock %}
+{% block page_title %}My Grievances{% endblock %}
+
+{% block content %}
+<!-- Search & Filters Toolbar -->
+<div class="card-custom bg-white p-3 mb-4">
+  <form method="get" class="row g-2 align-items-center">
+    <!-- Search Query -->
+    <div class="col-md-4">
+      <div class="input-group">
+        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by title, tracking ID, or description...">
+      </div>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="col-sm-6 col-md-2">
+      <select name="status" class="form-select">
+        <option value="">All Statuses</option>
+        {% for st_val, st_lbl in status_choices %}
+          <option value="{{ st_val }}" {% if status_filter == st_val %}selected{% endif %}>{{ st_lbl }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="col-sm-6 col-md-3">
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        {% for cat_val, cat_lbl in category_choices %}
+          <option value="{{ cat_val }}" {% if category_filter == cat_val %}selected{% endif %}>{{ cat_lbl }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Priority Filter -->
+    <div class="col-sm-6 col-md-2">
+      <select name="priority" class="form-select">
+        <option value="">All Priorities</option>
+        {% for pr_val, pr_lbl in priority_choices %}
+          <option value="{{ pr_val }}" {% if priority_filter == pr_val %}selected{% endif %}>{{ pr_val }} Priority</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="col-12 col-md-1 d-flex gap-1">
+      <button type="submit" class="btn btn-primary-modern w-100 py-2" title="Apply Filters">
+        <i class="bi bi-funnel-fill"></i>
+      </button>
+      {% if search_query or status_filter or category_filter or priority_filter %}
+        <a href="{% url 'my_complaints' %}" class="btn btn-outline-secondary py-2" title="Reset Filters">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Complaints Directory Table -->
+<div class="card-custom bg-white">
+  <div class="card-header-clean d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="mb-0 fw-bold">
+        <i class="bi bi-collection text-primary me-2"></i> My Grievances History
+      </h5>
+      <small class="text-muted">Showing {{ page_obj.paginator.count }} submitted grievance{{ page_obj.paginator.count|pluralize }}</small>
+    </div>
+    <div>
+      <a href="{% url 'submit_complaint' %}" class="btn btn-sm btn-primary-modern">
+        <i class="bi bi-plus-lg me-1"></i> New Grievance
+      </a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-modern table-hover">
+      <thead>
+        <tr>
+          <th>Tracking ID</th>
+          <th>Title &amp; Summary</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Admin Feedback / Rating</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for complaint in page_obj %}
+          <tr>
+            <td>
+              <span class="fw-bold text-primary font-monospace" style="font-size: 0.88rem;">{{ complaint.complaint_id }}</span>
+              {% if complaint.is_anonymous %}
+                <span class="d-block badge badge-anonymous mt-1"><i class="bi bi-incognito"></i> Anonymous</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="fw-bold text-dark text-truncate" style="max-width: 220px;">
+                {{ complaint.title }}
+              </div>
+              <small class="text-muted text-truncate d-block" style="max-width: 230px;">
+                {{ complaint.description }}
+              </small>
+            </td>
+            <td>
+              <span class="badge-category-modern">
+                <i class="bi {{ complaint.category_icon }} text-primary"></i>
+                {{ complaint.get_category_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge-priority {{ complaint.priority_badge_class }}">
+                {% if complaint.priority == 'Critical' %}<span class="pulse-critical"></span>{% endif %}
+                {{ complaint.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge-status-modern {% if complaint.status == 'Resolved' %}status-resolved{% elif complaint.status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+                <span class="status-pulse-dot {% if complaint.status == 'Resolved' %}dot-resolved{% elif complaint.status == 'In Progress' %}dot-progress{% else %}dot-pending{% endif %}"></span>
+                {{ complaint.status }}
+              </span>
+            </td>
+            <td class="text-muted small">
+              {{ complaint.created_at|date:"M d, Y" }}<br>
+              <span class="text-secondary" style="font-size: 0.75rem;">{{ complaint.created_at|time:"h:i A" }}</span>
+            </td>
+            <td>
+              {% if complaint.admin_response %}
+                <span class="badge bg-light text-dark border text-truncate d-inline-block py-1 px-2 mb-1" style="max-width: 200px;" title="{{ complaint.admin_response }}">
+                  <i class="bi bi-chat-quote-fill text-primary me-1"></i> {{ complaint.admin_response }}
+                </span>
+              {% else %}
+                <span class="text-muted small fst-italic d-block mb-1">Under initial review</span>
+              {% endif %}
+              {% if complaint.satisfaction_rating %}
+                <div class="small text-warning fw-bold">
+                  ★ {{ complaint.satisfaction_rating }}/5 Rated
+                </div>
+              {% elif complaint.status == 'Resolved' %}
+                <a href="{% url 'complaint_detail' complaint.complaint_id %}#feedbackSection" class="badge bg-warning-subtle text-warning-emphasis text-decoration-none">
+                  ★ Leave Review
+                </a>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'complaint_detail' complaint.complaint_id %}" class="btn btn-outline-primary" title="View Full Details">
+                  <i class="bi bi-eye"></i> Details
+                </a>
+                <a href="{% url 'printable_receipt' complaint.complaint_id %}" class="btn btn-outline-success" title="Print Official Receipt">
+                  <i class="bi bi-printer"></i>
+                </a>
+                <a href="{% url 'complaint_history' complaint.complaint_id %}" class="btn btn-outline-secondary" title="View Timeline Log">
+                  <i class="bi bi-clock-history"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">
+              <div class="py-3">
+                <i class="bi bi-search fs-1 text-muted d-block mb-2"></i>
+                <h6 class="fw-bold text-dark">No matching grievances found</h6>
+                <p class="small text-muted mb-0">Try clearing your search query or status/priority filters.</p>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  {% if page_obj.has_other_pages %}
+    <div class="p-3 border-top d-flex justify-content-between align-items-center">
+      <small class="text-muted">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} (Total {{ page_obj.paginator.count }} items)
+      </small>
+      <nav aria-label="Complaints Pagination">
+        <ul class="pagination pagination-sm mb-0">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">
+                &laquo; Prev
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">
+                  {{ num }}
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">
+                Next &raquo;
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

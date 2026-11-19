@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Grievance {{ complaint.complaint_id }} – UniResolve{% endblock %}
+{% block page_title %}Grievance Details{% endblock %}
+
+{% block content %}
+<div class="mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+  <a href="{% if is_admin %}{% url 'all_complaints' %}{% else %}{% url 'my_complaints' %}{% endif %}" class="btn btn-sm btn-outline-secondary fw-semibold">
+    <i class="bi bi-arrow-left me-1"></i> Back to Complaints List
+  </a>
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'printable_receipt' complaint.complaint_id %}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 shadow-sm">
+      <i class="bi bi-printer-fill me-1"></i> Print Formal Grievance Slip
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Main Complaint Information Column -->
+  <div class="col-lg-8">
+    <div class="card-custom bg-white mb-4">
+      <div class="card-header-clean d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge bg-primary-subtle text-primary border font-monospace fw-bold fs-6 py-2 px-3">
+            {{ complaint.complaint_id }}
+          </span>
+          <span class="badge-category-modern">
+            <i class="bi {{ complaint.category_icon }} text-primary"></i> {{ complaint.get_category_display }}
+          </span>
+          <span class="badge-priority {{ complaint.priority_badge_class }}">
+            {% if complaint.priority == 'Critical' %}<span class="pulse-critical"></span>{% endif %}
+            {{ complaint.priority }} Priority
+          </span>
+          {% if complaint.is_anonymous %}
+            <span class="badge badge-anonymous"><i class="bi bi-incognito"></i> Anonymous Submission</span>
+          {% endif %}
+        </div>
+        <div>
+          <span class="badge-status-modern {% if complaint.status == 'Resolved' %}status-resolved{% elif complaint.status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+            <span class="status-pulse-dot {% if complaint.status == 'Resolved' %}dot-resolved{% elif complaint.status == 'In Progress' %}dot-progress{% else %}dot-pending{% endif %}"></span>
+            Status: {{ complaint.status }}
+          </span>
+          {% if complaint.is_overdue %}
+            <span class="badge badge-overdue ms-1"><i class="bi bi-alarm-fill"></i> Overdue Target</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="p-4">
+        <!-- Title -->
+        <h3 class="fw-bold text-dark mb-3">{{ complaint.title }}</h3>
+
+        <!-- Description -->
+        <div class="mb-4">
+          <h6 class="text-uppercase text-muted fw-bold small mb-2">Detailed Description</h6>
+          <div class="p-3 rounded-3 text-dark border" style="background-color: #f8fafc; white-space: pre-line; line-height: 1.6;">
+            {{ complaint.description }}
+          </div>
+        </div>
+
+        <!-- Optional Image Attachment Preview -->
+        {% if complaint.image %}
+          <div class="mb-4">
+            <h6 class="text-uppercase text-muted fw-bold small mb-2">Supporting Photographic Evidence</h6>
+            <div class="p-3 bg-light rounded-3 border d-inline-block">
+              <div role="button" data-bs-toggle="modal" data-bs-target="#imagePreviewModal" style="cursor: pointer;">
+                <img src="{{ complaint.image.url }}" alt="Complaint Attachment" class="img-fluid rounded-3 shadow-sm border" style="max-height: 250px; display: block;">
+                <div class="small text-muted mt-2 d-flex align-items-center gap-2">
+                  <span class="badge bg-primary text-white"><i class="bi bi-arrows-fullscreen me-1"></i> Fullscreen Preview</span>
+                  <span>Click photo to open lightbox viewer</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal for Full High-Res Image Preview -->
+            <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg">
+                  <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-bold" id="imagePreviewModalLabel">
+                      <i class="bi bi-camera-fill text-primary me-2"></i> Evidence Photo: {{ complaint.complaint_id }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-center p-3 bg-dark">
+                    <img src="{{ complaint.image.url }}" alt="Full Preview" class="img-fluid rounded-2 shadow" style="max-height: 70vh; object-fit: contain;">
+                  </div>
+                  <div class="modal-footer border-top bg-light">
+                    <a href="{{ complaint.image.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                      <i class="bi bi-box-arrow-up-right me-1"></i> Open in New Tab
+                    </a>
+                    <a href="{{ complaint.image.url }}" download class="btn btn-sm btn-primary-modern">
+                      <i class="bi bi-download me-1"></i> Download Original File
+                    </a>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Administrative Handling & Assignment Info -->
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3 border">
+              <small class="text-uppercase text-muted fw-bold font-monospace" style="font-size: 0.7rem;">Assigned Authority</small>
+              <div class="fw-bold text-dark mt-1">
+                <i class="bi bi-person-badge text-primary me-1"></i>
+                {{ complaint.assigned_to|default:"Central Campus Redressal Cell" }}
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3 border">
+              <small class="text-uppercase text-muted fw-bold font-monospace" style="font-size: 0.7rem;">Target Resolution (ETA)</small>
+              <div class="fw-bold text-dark mt-1">
+                <i class="bi bi-calendar-event text-primary me-1"></i>
+                {% if complaint.expected_resolution_date %}
+                  {{ complaint.expected_resolution_date|date:"F d, Y" }}
+                  {% if complaint.is_overdue %}<span class="badge bg-danger ms-1">Overdue</span>{% endif %}
+                {% else %}
+                  <span class="text-muted fw-normal">Standard 72-Hour Response</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Official Administrative Response Callout Box -->
+        <div class="rounded-3 p-4 mb-4 border position-relative overflow-hidden" style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-color: #c7d2fe !important;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="rounded-circle bg-primary text-white p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 1rem;">
+              <i class="bi bi-patch-check-fill"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-0">Official Administrative Response</h5>
+          </div>
+
+          {% if complaint.admin_response %}
+            <div class="text-dark fs-6 mt-2" style="white-space: pre-line; line-height: 1.6;">
+              {{ complaint.admin_response }}
+            </div>
+            <div class="text-muted small mt-3 pt-2 border-top border-primary border-opacity-25 d-flex align-items-center gap-2">
+              <i class="bi bi-clock-history"></i>
+              <span>Last response recorded: <strong>{{ complaint.updated_at|date:"F d, Y h:i A" }}</strong></span>
+            </div>
+          {% else %}
+            <p class="text-muted mb-0 mt-2 fst-italic">
+              No official administrative response has been issued yet. The grievance is currently under investigation by campus authorities.
+            </p>
+          {% endif %}
+        </div>
+
+        <!-- Student Resolution Rating & Feedback Section -->
+        <div id="feedbackSection" class="p-4 rounded-3 border mb-3 bg-white">
+          <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+            <h5 class="fw-bold text-dark mb-0">
+              <i class="bi bi-star-fill text-warning me-2"></i> Student Resolution Satisfaction Review
+            </h5>
+            {% if complaint.satisfaction_rating %}
+              <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">
+                <i class="bi bi-check2-circle me-1"></i> Review Recorded
+              </span>
+            {% endif %}
+          </div>
+
+          {% if complaint.satisfaction_rating %}
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <span class="star-rating-display">
+                {% for i in "12345"|make_list %}
+                  {% if forloop.counter <= complaint.satisfaction_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+              <span class="fw-bold text-dark">({{ complaint.satisfaction_rating }} out of 5 Stars)</span>
+            </div>
+            {% if complaint.student_feedback %}
+              <p class="text-secondary small fst-italic mb-2 bg-light p-3 rounded border">
+                "{{ complaint.student_feedback }}"
+              </p>
+            {% endif %}
+            <small class="text-muted font-monospace">Feedback timestamp: {{ complaint.feedback_submitted_at|default:complaint.updated_at|date:"M d, Y h:i A" }}</small>
+          {% elif complaint.status == 'Resolved' and feedback_form %}
+            <!-- Rating Form for Submitting Student -->
+            <form method="post" class="mt-2">
+              {% csrf_token %}
+              <p class="text-muted small mb-3">Please rate how effectively this grievance was addressed by our administration:</p>
+              
+              <div class="mb-3">
+                <label for="{{ feedback_form.satisfaction_rating.id_for_label }}" class="form-label fw-semibold small">
+                  {{ feedback_form.satisfaction_rating.label }} <span class="text-danger">*</span>
+                </label>
+                {{ feedback_form.satisfaction_rating }}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ feedback_form.student_feedback.id_for_label }}" class="form-label fw-semibold small">
+                  {{ feedback_form.student_feedback.label }}
+                </label>
+                {{ feedback_form.student_feedback }}
+              </div>
+
+              <button type="submit" name="submit_feedback" class="btn btn-warning text-dark fw-bold px-4 py-2">
+                <i class="bi bi-send-check-fill me-1"></i> Submit Resolution Review
+              </button>
+            </form>
+          {% else %}
+            <p class="text-muted small mb-0">
+              {% if complaint.status != 'Resolved' %}
+                <i class="bi bi-info-circle me-1"></i> Student review &amp; satisfaction rating will become available as soon as this grievance is marked <strong>Resolved</strong>.
+              {% else %}
+                <i class="bi bi-info-circle me-1"></i> No student rating has been submitted yet for this grievance.
+              {% endif %}
+            </p>
+          {% endif %}
+        </div>
+
+        {% if is_admin %}
+          <div class="mt-4 pt-3 border-top">
+            <a href="{% url 'admin_complaint_detail' complaint.complaint_id %}" class="btn btn-primary-modern">
+              <i class="bi bi-pencil-square me-1"></i> Manage / Update Complaint
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta Details & Audit History Preview Column -->
+  <div class="col-lg-4">
+    <!-- Complaint Details Card -->
+    <div class="card-custom bg-white p-4 mb-4">
+      <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+        <i class="bi bi-info-circle-fill text-primary me-2"></i> Complaint Metadata
+      </h6>
+
+      <div class="d-flex flex-column gap-3 small">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Tracking ID:</span>
+          <span class="fw-bold font-monospace text-primary">{{ complaint.complaint_id }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Submitted By:</span>
+          <span class="fw-bold text-dark">{{ complaint.get_public_student_name }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Reg Number:</span>
+          <span class="font-monospace fw-semibold">{{ complaint.get_public_reg_number }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Category:</span>
+          <span class="badge-category-modern"><i class="bi {{ complaint.category_icon }} text-primary"></i> {{ complaint.get_category_display }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Priority:</span>
+          <span class="badge-priority {{ complaint.priority_badge_class }}">{{ complaint.priority }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Current Status:</span>
+          <span class="badge-status-modern {% if complaint.status == 'Resolved' %}status-resolved{% elif complaint.status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+            {{ complaint.status }}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Submitted Date:</span>
+          <span>{{ complaint.created_at|date:"M d, Y" }} {{ complaint.created_at|time:"h:i A" }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Last Updated:</span>
+          <span>{{ complaint.updated_at|date:"M d, Y" }} {{ complaint.updated_at|time:"h:i A" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Audit History Summary Card -->
+    <div class="card-custom bg-white p-4">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h6 class="fw-bold text-dark mb-0">
+          <i class="bi bi-clock-history text-primary me-2"></i> Audit Trail
+        </h6>
+        <a href="{% url 'complaint_history' complaint.complaint_id %}" class="small text-primary fw-bold">
+          Full Log &raquo;
+        </a>
+      </div>
+
+      <div class="timeline-modern" style="margin: 0.5rem 0 0.5rem 0.5rem;">
+        {% for entry in history_entries %}
+          <div class="timeline-node">
+            <div class="timeline-node-marker">
+              <i class="bi bi-check2"></i>
+            </div>
+            <div class="timeline-node-card p-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-bold text-dark small">{{ entry.previous_status }} &rarr; {{ entry.new_status }}</span>
+              </div>
+              <div class="text-muted" style="font-size: 0.72rem;">
+                {{ entry.timestamp|date:"M d, Y h:i A" }}
+                {% if entry.updated_by %}
+                  &bull; by {{ entry.updated_by.get_full_name|default:entry.updated_by.username }}
+                {% endif %}
+              </div>
+              {% if entry.remarks %}
+                <div class="text-secondary mt-1 small" style="font-size: 0.82rem;">
+                  {{ entry.remarks }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <div class="text-muted small">No audit history entries logged yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Administrator Dashboard – UniResolve{% endblock %}
+{% block page_title %}Administrator Control Center{% endblock %}
+
+{% block content %}
+<!-- Welcome & Quick Stats Header -->
+<div class="card-custom p-4 mb-4 bg-white border-0 shadow-sm" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%); color: #ffffff;">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge bg-danger text-white py-1 px-2 fw-semibold" style="font-size: 0.75rem;">
+          <i class="bi bi-shield-fill me-1"></i> Admin Privileges
+        </span>
+        <span class="text-white-50 small">&bull; Dean of Student Affairs Console</span>
+        <span class="badge bg-light text-dark font-monospace" style="font-size: 0.72rem;">UniResolve 2026</span>
+      </div>
+      <h3 class="fw-bold mb-1 text-white">
+        UniResolve Institutional Redressal Console 🛡️
+      </h3>
+      <p class="text-white-50 mb-0 small">
+        Review student grievances, assign campus departments, dispatch administrative actions, and maintain NAAC/UGC audit compliance.
+      </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'all_complaints' %}?export=csv" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2">
+        <i class="bi bi-file-earmark-spreadsheet-fill text-success"></i>
+        <span>Export CSV</span>
+      </a>
+      <a href="{% url 'all_complaints' %}" class="btn btn-primary-modern btn-sm d-flex align-items-center gap-2 shadow">
+        <i class="bi bi-card-checklist"></i>
+        <span>Manage All Grievances</span>
+      </a>
+      <a href="/django-admin/" target="_blank" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2">
+        <i class="bi bi-sliders2"></i>
+        <span>Django Admin</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Modern Metric Cards Grid (Row 1) -->
+<div class="row g-3 mb-3">
+  <!-- Total Grievances -->
+  <div class="col-sm-6 col-xl">
+    <div class="stat-card-modern accent-blue">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <div class="stat-title-sm">Total Filed</div>
+          <div class="stat-number-lg mt-1">{{ total_complaints }}</div>
+        </div>
+        <div class="stat-icon-glow glow-blue">
+          <i class="bi bi-folder-fill"></i>
+        </div>
+      </div>
+      <div class="small text-muted d-flex align-items-center gap-1">
+        <i class="bi bi-graph-up text-primary"></i> Across all departments
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending -->
+  <div class="col-sm-6 col-xl">
+    <div class="stat-card-modern accent-warning">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <div class="stat-title-sm">Pending Review</div>
+          <div class="stat-number-lg mt-1 text-warning">{{ pending_complaints }}</div>
+        </div>
+        <div class="stat-icon-glow glow-warning">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+      </div>
+      <div class="small text-muted d-flex align-items-center gap-1">
+        <span class="status-pulse-dot dot-pending"></span> Action required
+      </div>
+    </div>
+  </div>
+
+  <!-- In Progress -->
+  <div class="col-sm-6 col-xl">
+    <div class="stat-card-modern accent-info">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <div class="stat-title-sm">In Progress</div>
+          <div class="stat-number-lg mt-1 text-primary">{{ in_progress_complaints }}</div>
+        </div>
+        <div class="stat-icon-glow glow-info">
+          <i class="bi bi-gear-wide-connected"></i>
+        </div>
+      </div>
+      <div class="small text-muted d-flex align-items-center gap-1">
+        <span class="status-pulse-dot dot-progress"></span> Dispatched to staff
+      </div>
+    </div>
+  </div>
+
+  <!-- Resolved -->
+  <div class="col-sm-6 col-xl">
+    <div class="stat-card-modern accent-success">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <div class="stat-title-sm">Resolved</div>
+          <div class="stat-number-lg mt-1 text-success">{{ resolved_complaints }}</div>
+        </div>
+        <div class="stat-icon-glow glow-success">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+      </div>
+      <div class="small text-muted d-flex align-items-center gap-1">
+        <span class="status-pulse-dot dot-resolved"></span> Fully closed
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Students -->
+  <div class="col-sm-6 col-xl">
+    <div class="stat-card-modern accent-purple">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <div class="stat-title-sm">Active Students</div>
+          <div class="stat-number-lg mt-1 text-purple" style="color: #7c3aed;">{{ total_students }}</div>
+        </div>
+        <div class="stat-icon-glow glow-purple">
+          <i class="bi bi-people-fill"></i>
+        </div>
+      </div>
+      <div class="small text-muted d-flex align-items-center gap-1">
+        <i class="bi bi-person-check text-purple"></i> Enrolled users
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced High-Value Indicators (Row 2) -->
+<div class="row g-3 mb-4">
+  <!-- Critical Emergency Tiers -->
+  <div class="col-sm-6 col-md-3">
+    <div class="card p-3 border-danger-subtle bg-white shadow-xs rounded-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <small class="text-danger fw-bold text-uppercase" style="font-size: 0.72rem;">
+            <i class="bi bi-lightning-charge-fill me-1"></i> Critical / Emergency
+          </small>
+          <div class="fs-4 fw-bold text-danger mt-1">{{ critical_complaints }}</div>
+        </div>
+        {% if critical_complaints > 0 %}
+          <span class="pulse-critical"></span>
+        {% endif %}
+      </div>
+      <small class="text-muted" style="font-size: 0.75rem;">Immediate priority response</small>
+    </div>
+  </div>
+
+  <!-- Overdue / Escalated Target -->
+  <div class="col-sm-6 col-md-3">
+    <div class="card p-3 border-warning-subtle bg-white shadow-xs rounded-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <small class="text-warning-emphasis fw-bold text-uppercase" style="font-size: 0.72rem;">
+            <i class="bi bi-alarm-fill me-1"></i> Target Overdue (ETA)
+          </small>
+          <div class="fs-4 fw-bold text-dark mt-1">{{ overdue_complaints }}</div>
+        </div>
+        <i class="bi bi-clock-history fs-3 text-warning"></i>
+      </div>
+      <small class="text-muted" style="font-size: 0.75rem;">Passed resolution date</small>
+    </div>
+  </div>
+
+  <!-- Anonymous / Confidential Grievances -->
+  <div class="col-sm-6 col-md-3">
+    <div class="card p-3 border-primary-subtle bg-white shadow-xs rounded-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <small class="text-primary fw-bold text-uppercase" style="font-size: 0.72rem;">
+            <i class="bi bi-incognito me-1"></i> Anonymous Filings
+          </small>
+          <div class="fs-4 fw-bold text-dark mt-1">{{ anonymous_complaints }}</div>
+        </div>
+        <i class="bi bi-shield-lock-fill fs-3 text-primary"></i>
+      </div>
+      <small class="text-muted" style="font-size: 0.75rem;">Protected identity records</small>
+    </div>
+  </div>
+
+  <!-- Student Satisfaction Index -->
+  <div class="col-sm-6 col-md-3">
+    <div class="card p-3 border-success-subtle bg-white shadow-xs rounded-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <small class="text-success fw-bold text-uppercase" style="font-size: 0.72rem;">
+            <i class="bi bi-star-fill text-warning me-1"></i> Student Satisfaction
+          </small>
+          <div class="fs-4 fw-bold text-dark mt-1">{{ avg_satisfaction }} ★ <span class="fs-6 text-muted fw-normal">/ 5.0</span></div>
+        </div>
+        <i class="bi bi-hand-thumbs-up-fill fs-3 text-success"></i>
+      </div>
+      <small class="text-muted" style="font-size: 0.75rem;">Based on {{ total_reviews }} verified reviews</small>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Chart.js Visualizations Section -->
+<div class="row g-4 mb-4">
+  <!-- Interactive Doughnut Chart: Status Lifecycle -->
+  <div class="col-lg-5">
+    <div class="card-custom bg-white p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0">
+          <i class="bi bi-pie-chart-fill text-primary me-2"></i> Status Distribution
+        </h5>
+        <span class="badge bg-light text-dark border">Interactive Chart</span>
+      </div>
+      <p class="text-muted small mb-3">Real-time breakdown of all student grievance stages.</p>
+
+      <div style="position: relative; height: 230px;" class="d-flex align-items-center justify-content-center">
+        <canvas id="adminStatusChart"></canvas>
+      </div>
+
+      <div class="row g-2 mt-3 pt-3 border-top text-center small">
+        <div class="col-4">
+          <span class="d-block text-muted" style="font-size: 0.72rem;">PENDING</span>
+          <strong class="text-warning fs-6">{{ pending_complaints }}</strong>
+          <div class="text-muted" style="font-size: 0.7rem;">{{ pending_pct }}%</div>
+        </div>
+        <div class="col-4">
+          <span class="d-block text-muted" style="font-size: 0.72rem;">IN PROGRESS</span>
+          <strong class="text-primary fs-6">{{ in_progress_complaints }}</strong>
+          <div class="text-muted" style="font-size: 0.7rem;">{{ in_progress_pct }}%</div>
+        </div>
+        <div class="col-4">
+          <span class="d-block text-muted" style="font-size: 0.72rem;">RESOLVED</span>
+          <strong class="text-success fs-6">{{ resolved_complaints }}</strong>
+          <div class="text-muted" style="font-size: 0.7rem;">{{ resolved_pct }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Bar Chart: Complaints by Category -->
+  <div class="col-lg-7">
+    <div class="card-custom bg-white p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0">
+          <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Grievances by Department
+        </h5>
+        <span class="badge bg-light text-dark border">{{ categories_data|length }} Domains</span>
+      </div>
+      <p class="text-muted small mb-3">Volume distribution across campus facilities and academic branches.</p>
+
+      <div style="position: relative; height: 270px;">
+        <canvas id="adminCategoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Latest Complaints Table with Instant Filter Tabs -->
+<div class="card-custom bg-white">
+  <div class="card-header-clean d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+    <div>
+      <h5 class="mb-0 fw-bold">
+        <i class="bi bi-table text-primary me-2"></i> Recent Student Complaints
+      </h5>
+      <small class="text-muted">Review, assign work orders, and dispatch administrative responses</small>
+    </div>
+    
+    <!-- Client-side Fast Filter Tabs -->
+    <div class="d-flex align-items-center gap-2">
+      <div class="btn-group btn-group-sm" role="group" aria-label="Status Filter Tabs">
+        <button type="button" class="btn btn-outline-secondary active table-filter-tab" data-filter="all">All</button>
+        <button type="button" class="btn btn-outline-warning table-filter-tab" data-filter="Pending">Pending</button>
+        <button type="button" class="btn btn-outline-primary table-filter-tab" data-filter="In Progress">In Progress</button>
+        <button type="button" class="btn btn-outline-success table-filter-tab" data-filter="Resolved">Resolved</button>
+      </div>
+      <a href="{% url 'all_complaints' %}" class="btn btn-sm btn-primary-modern fw-semibold">
+        All ({{ total_complaints }}) &raquo;
+      </a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-modern table-hover" id="latestComplaintsTable">
+      <thead>
+        <tr>
+          <th>Tracking ID</th>
+          <th>Student Details</th>
+          <th>Title &amp; Issue</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Submitted On</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for complaint in latest_complaints %}
+          <tr class="complaint-row" data-status="{{ complaint.status }}">
+            <td>
+              <span class="fw-bold text-primary font-monospace" style="font-size: 0.88rem;">{{ complaint.complaint_id }}</span>
+              {% if complaint.is_anonymous %}
+                <span class="d-block badge badge-anonymous mt-1"><i class="bi bi-incognito"></i> Protected</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-initials" style="{% if complaint.is_anonymous %}background: linear-gradient(135deg, #6d28d9, #4f46e5);{% endif %}">
+                  {% if complaint.is_anonymous %}
+                    <i class="bi bi-incognito"></i>
+                  {% else %}
+                    {{ complaint.student.first_name|default:complaint.student.username|slice:":1"|upper }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="fw-bold text-dark lh-sm">
+                    {{ complaint.get_public_student_name }}
+                  </div>
+                  <small class="text-muted font-monospace" style="font-size: 0.72rem;">
+                    {{ complaint.get_public_reg_number }}
+                  </small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="fw-bold text-dark text-truncate" style="max-width: 220px;">
+                {{ complaint.title }}
+              </div>
+              <small class="text-muted text-truncate d-block" style="max-width: 230px;">
+                {{ complaint.description }}
+              </small>
+            </td>
+            <td>
+              <span class="badge-category-modern">
+                <i class="bi {{ complaint.category_icon }} text-primary"></i>
+                {{ complaint.get_category_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge-priority {{ complaint.priority_badge_class }}">
+                {% if complaint.priority == 'Critical' %}<span class="pulse-critical"></span>{% endif %}
+                {{ complaint.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="badge-status-modern {% if complaint.status == 'Resolved' %}status-resolved{% elif complaint.status == 'In Progress' %}status-progress{% else %}status-pending{% endif %}">
+                <span class="status-pulse-dot {% if complaint.status == 'Resolved' %}dot-resolved{% elif complaint.status == 'In Progress' %}dot-progress{% else %}dot-pending{% endif %}"></span>
+                {{ complaint.status }}
+              </span>
+              {% if complaint.is_overdue %}
+                <div class="badge badge-overdue mt-1">Overdue ETA</div>
+              {% endif %}
+            </td>
+            <td class="text-muted small">
+              {{ complaint.created_at|date:"M d, Y" }}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'admin_complaint_detail' complaint.complaint_id %}" class="btn btn-sm btn-primary-modern">
+                <i class="bi bi-pencil-square me-1"></i> Review &amp; Act
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              No complaints in system.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // 1. Chart.js Status Doughnut Chart
+  const statusCtx = document.getElementById('adminStatusChart');
+  if (statusCtx) {
+    const statusData = JSON.parse('{{ chart_status_data|safe }}');
+    new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: statusData.labels,
+        datasets: [{
+          data: statusData.counts,
+          backgroundColor: statusData.colors,
+          borderWidth: 3,
+          borderColor: '#ffffff',
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              padding: 15,
+              font: { family: 'Plus Jakarta Sans', size: 12, weight: 600 }
+            }
+          },
+          tooltip: {
+            padding: 10,
+            cornerRadius: 8,
+            titleFont: { family: 'Plus Jakarta Sans', weight: 700 }
+          }
+        },
+        cutout: '72%'
+      }
+    });
+  }
+
+  // 2. Chart.js Category Bar Chart
+  const catCtx = document.getElementById('adminCategoryChart');
+  if (catCtx) {
+    const catData = JSON.parse('{{ chart_category_data|safe }}');
+    new Chart(catCtx, {
+      type: 'bar',
+      data: {
+        labels: catData.labels,
+        datasets: [{
+          label: 'Complaints',
+          data: catData.counts,
+          backgroundColor: catData.colors,
+          borderRadius: 6,
+          maxBarThickness: 36
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            padding: 10,
+            cornerRadius: 8,
+            titleFont: { family: 'Plus Jakarta Sans', weight: 700 }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 11 } },
+            grid: { color: '#f1f5f9' }
+          },
+          x: {
+            ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: 600 } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // 3. Fast Client-Side Table Filter Tabs
+  const filterTabs = document.querySelectorAll('.table-filter-tab');
+  const rows = document.querySelectorAll('.complaint-row');
+
+  filterTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      filterTabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      const target = this.getAttribute('data-filter');
+
+      rows.forEach(function (row) {
+        if (target === 'all' || row.getAttribute('data-status') === target) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  });
+});
+</script>
+{% endblock %}

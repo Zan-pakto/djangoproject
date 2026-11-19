@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Grievance Receipt – {{ complaint.complaint_id }} | UniResolve{% endblock %}
+{% block page_title %}Grievance Receipt #{{ complaint.complaint_id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <!-- Controls Bar (Hidden during print) -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 no-print">
+    <div class="d-flex align-items-center gap-2">
+      <a href="{% url 'complaint_detail' complaint.complaint_id %}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Grievance Details</span>
+      </a>
+      <span class="text-muted small">| Official A4 Printable Dossier</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button onclick="window.print()" class="btn btn-primary-modern btn-sm d-inline-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-printer-fill"></i>
+        <span>Print Grievance Receipt / Save PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Formal Printable Receipt Paper Wrapper -->
+  <div class="receipt-wrapper bg-white">
+    <!-- Institutional Letterhead Header -->
+    <div class="receipt-header-banner">
+      <div class="d-flex align-items-center gap-3">
+        <div class="sidebar-brand-icon" style="width: 54px; height: 54px; font-size: 1.8rem; background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+          <i class="bi bi-shield-fill-check"></i>
+        </div>
+        <div>
+          <h4 class="mb-0 fw-bold text-dark tracking-tight">UniResolve Institutional Redressal Cell</h4>
+          <p class="mb-0 text-muted small">Office of Dean of Student Welfare &bull; Central Grievance Redressal Committee</p>
+          <small class="text-secondary font-monospace" style="font-size: 0.72rem;">UGC / AICTE Compliant Grievance Monitoring Mechanism &bull; Academic Year 2026</small>
+        </div>
+      </div>
+      <div class="receipt-seal text-center d-none d-sm-flex">
+        <span>UniResolve</span>
+        <span class="fw-bold" style="font-size: 0.75rem;">VERIFIED</span>
+        <span>RECORD</span>
+      </div>
+    </div>
+
+    <!-- Tracking Badge and Header Title -->
+    <div class="text-center py-2 mb-4 border-bottom">
+      <span class="badge bg-dark text-white px-3 py-1 font-monospace fs-6">
+        GRIEVANCE REGISTRATION DOSSIER
+      </span>
+      <h5 class="fw-bold text-dark mt-2 mb-1">REFERENCE NO: <span class="font-monospace text-primary">{{ complaint.complaint_id }}</span></h5>
+      <p class="text-muted small mb-0">Generated on {{ complaint.created_at|date:"F d, Y \a\t H:i e" }}</p>
+    </div>
+
+    <!-- Metadata Grid -->
+    <div class="row g-3 mb-4">
+      <div class="col-6">
+        <div class="p-3 bg-light rounded-3 border">
+          <small class="text-uppercase text-muted fw-bold font-monospace" style="font-size: 0.7rem;">Student Information</small>
+          <div class="mt-2">
+            <div class="fw-bold text-dark fs-6">{{ complaint.get_public_student_name }}</div>
+            <div class="text-muted small font-monospace">Reg No: {{ complaint.get_public_reg_number }}</div>
+            <div class="text-muted small">Dept: {{ complaint.student.profile.department|default:"General Academic" }}</div>
+            {% if complaint.is_anonymous %}
+              <span class="badge badge-anonymous mt-1"><i class="bi bi-incognito"></i> Whistleblower Confidential</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="p-3 bg-light rounded-3 border">
+          <small class="text-uppercase text-muted fw-bold font-monospace" style="font-size: 0.7rem;">Classification &amp; Urgency</small>
+          <div class="mt-2">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="text-muted small">Category:</span>
+              <span class="badge-category-modern py-0 px-2">{{ complaint.category }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="text-muted small">Priority:</span>
+              <span class="badge-priority {{ complaint.priority_badge_class }} py-0 px-2">{{ complaint.priority }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted small">Current Status:</span>
+              <span class="badge {{ complaint.status_badge_class }} px-2 py-0">{{ complaint.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grievance Subject & Description -->
+    <div class="mb-4">
+      <h6 class="fw-bold text-dark border-bottom pb-2">Grievance Synopsis</h6>
+      <div class="p-3 bg-white border rounded-3 mb-2">
+        <div class="fw-bold text-dark mb-1">{{ complaint.title }}</div>
+        <div class="text-secondary small" style="line-height: 1.6; white-space: pre-line;">
+          {{ complaint.description }}
+        </div>
+      </div>
+      {% if complaint.image %}
+        <div class="small text-muted font-monospace">
+          <i class="bi bi-paperclip me-1"></i> Photographic proof attached and archived on secure institutional storage.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Administrative Response & Assignment Section -->
+    <div class="mb-4">
+      <h6 class="fw-bold text-dark border-bottom pb-2">Administrative Action &amp; Redressal Status</h6>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm small mb-0">
+          <tbody>
+            <tr>
+              <th class="bg-light text-muted" style="width: 25%;">Assigned Department</th>
+              <td class="fw-semibold text-dark">{{ complaint.assigned_to|default:"Central Redressal Cell / Unassigned" }}</td>
+            </tr>
+            <tr>
+              <th class="bg-light text-muted">Estimated Target (ETA)</th>
+              <td>{{ complaint.expected_resolution_date|default:"Standard 72-Hour Resolution Window" }}</td>
+            </tr>
+            <tr>
+              <th class="bg-light text-muted">Administrative Remarks</th>
+              <td>{{ complaint.admin_response|default:"Under formal committee examination and resource dispatch." }}</td>
+            </tr>
+            {% if complaint.satisfaction_rating %}
+              <tr>
+                <th class="bg-light text-muted">Student Rating</th>
+                <td>
+                  <span class="text-warning fw-bold">★ {{ complaint.satisfaction_rating }} / 5</span>
+                  {% if complaint.student_feedback %}
+                    <span class="text-muted ms-2">"{{ complaint.student_feedback }}"</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Verification & Signatures -->
+    <div class="mt-5 pt-3 border-top">
+      <div class="row align-items-end text-center">
+        <div class="col-4">
+          <div class="border-top border-dark pt-2 mx-3">
+            <small class="fw-bold text-dark d-block">Student Signature</small>
+            <small class="text-muted" style="font-size: 0.68rem;">(Or Digital Submission ID)</small>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-2 border border-secondary rounded font-monospace small" style="font-size: 0.65rem;">
+            DIGITALLY VERIFIED<br>
+            HASH: {{ complaint.complaint_id }}-2026-OK
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="border-top border-dark pt-2 mx-3">
+            <small class="fw-bold text-dark d-block">Grievance Officer</small>
+            <small class="text-muted" style="font-size: 0.68rem;">Dean of Student Affairs</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

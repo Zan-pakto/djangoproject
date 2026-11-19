@@ -1,0 +1,641 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}UniResolve – Smart Student Grievance &amp; Redressal Portal{% endblock %}
+
+{% block public_content %}
+<!-- Live Campus Operations Status Ticker -->
+<div class="py-2 text-white small" style="background: #090d16; border-bottom: 1px solid rgba(255,255,255,0.08);">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="status-pulse-dot dot-resolved"></span>
+      <span class="fw-semibold">UniResolve Campus Redressal Active</span>
+      <span class="text-white-50 d-none d-sm-inline">&bull; UGC &amp; AICTE Grievance Norms 2026</span>
+    </div>
+    <div class="d-flex align-items-center gap-3 text-white-50">
+      <span><i class="bi bi-star-fill text-warning me-1"></i> Satisfaction: <strong>{{ avg_rating|default:"4.9" }} / 5.0</strong></span>
+      <span><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Avg Redressal: <strong>Under 24h</strong></span>
+      <span class="d-none d-md-inline"><i class="bi bi-incognito text-info me-1"></i> Anonymous Option</span>
+    </div>
+  </div>
+</div>
+
+<!-- Production Hero Section with High-Res Campus Backdrop -->
+<section class="hero-production" style="background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1600&q=80');">
+  <div class="hero-production-overlay"></div>
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7 text-center text-lg-start">
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(79, 70, 229, 0.25); border: 1px solid rgba(129, 140, 248, 0.4); backdrop-filter: blur(8px);">
+          <span class="status-pulse-dot dot-resolved"></span>
+          <span class="text-white fw-semibold small">Smart Academic Redressal &bull; Session 2026-27</span>
+        </div>
+        
+        <h1 class="display-4 fw-extrabold text-white mb-3 tracking-tight" style="line-height: 1.15; font-weight: 800;">
+          Transparent, Fast &amp; Student-Centric Grievance Redressal.
+        </h1>
+        
+        <p class="lead text-white-50 mb-4 fs-5" style="max-width: 580px;">
+          UniResolve empowers university students and campus authorities with real-time issue escalation, urgency levels, confidential whistleblower mode, and verified administrative accountability.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+          <a href="{% url 'register' %}" class="btn btn-primary-modern btn-lg px-4 py-3 shadow-lg">
+            <i class="bi bi-person-plus-fill me-2"></i> Register Student Account
+          </a>
+          <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4 py-3" style="backdrop-filter: blur(8px);">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Portal Sign In
+          </a>
+        </div>
+
+        <div class="mt-4 pt-3 d-flex align-items-center gap-4 justify-content-center justify-content-lg-start text-white-50 small">
+          <div><i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> 4 Urgency Tiers</div>
+          <div><i class="bi bi-incognito text-info me-1"></i> Identity Protection</div>
+          <div><i class="bi bi-star-fill text-warning me-1"></i> Post-Resolution Ratings</div>
+          <div><i class="bi bi-printer-fill text-success me-1"></i> Official Dossier PDF</div>
+        </div>
+      </div>
+
+      <!-- Hero Glass Card with Live Campus Metrics -->
+      <div class="col-lg-5">
+        <div class="hero-glass-card">
+          <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-white-50">
+            <div>
+              <h5 class="text-white fw-bold mb-0">Live Grievance Redressal</h5>
+              <small class="text-white-50">Campus Real-Time Health Index</small>
+            </div>
+            <span class="badge bg-success bg-opacity-75 text-white px-2 py-1">
+              <i class="bi bi-activity me-1"></i> Operational
+            </span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="display-6 fw-bold text-white mb-0">{{ total_complaints|default:"13" }}</div>
+                <div class="text-white-50 text-uppercase fw-semibold" style="font-size: 0.72rem;">Grievances Logged</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="display-6 fw-bold text-success mb-0">{{ resolved_complaints|default:"8" }}</div>
+                <div class="text-white-50 text-uppercase fw-semibold" style="font-size: 0.72rem;">Resolved &amp; Closed</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="display-6 fw-bold text-info mb-0">{{ total_students|default:"5" }}</div>
+                <div class="text-white-50 text-uppercase fw-semibold" style="font-size: 0.72rem;">Active Students</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="display-6 fw-bold text-warning mb-0">{{ resolution_rate|default:"92" }}%</div>
+                <div class="text-white-50 text-uppercase fw-semibold" style="font-size: 0.72rem;">Resolution Ratio</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-3 text-white small" style="background: rgba(79, 70, 229, 0.2); border: 1px solid rgba(129, 140, 248, 0.25);">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <i class="bi bi-star-fill text-warning me-2"></i>
+                Student Satisfaction Score:
+              </div>
+              <span class="badge bg-warning text-dark font-monospace fw-bold">{{ avg_rating|default:"4.9" }} ★ / 5.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4-Step Simple Redressal Workflow -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-3 py-2 rounded-pill small">Structured Redressal Protocol</span>
+      <h2 class="fw-bold mt-2 fs-1">How UniResolve Delivers Action</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        An audited, end-to-end grievance resolution pipeline ensuring student satisfaction and departmental accountability.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card-custom p-4 h-100 border-0 shadow-sm" style="background: #f8fafc;">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="stat-icon-glow glow-blue">
+              <i class="bi bi-file-earmark-plus-fill"></i>
+            </div>
+            <span class="badge bg-primary text-white rounded-circle p-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700;">1</span>
+          </div>
+          <h5 class="fw-bold mb-2">1. Priority Submission</h5>
+          <p class="text-muted small mb-0">
+            Choose category, set urgency level (Low to Critical), attach photo evidence, and optionally enable identity concealment.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card-custom p-4 h-100 border-0 shadow-sm" style="background: #f8fafc;">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="stat-icon-glow glow-warning">
+              <i class="bi bi-person-gear"></i>
+            </div>
+            <span class="badge bg-warning text-dark rounded-circle p-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700;">2</span>
+          </div>
+          <h5 class="fw-bold mb-2">2. Department Assignment</h5>
+          <p class="text-muted small mb-0">
+            Administrators route the ticket to specific authorities (IT, Estate, Hostel, Academics) with target resolution dates (ETA).
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card-custom p-4 h-100 border-0 shadow-sm" style="background: #f8fafc;">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="stat-icon-glow glow-info">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <span class="badge bg-info text-white rounded-circle p-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700;">3</span>
+          </div>
+          <h5 class="fw-bold mb-2">3. Audit Timeline</h5>
+          <p class="text-muted small mb-0">
+            Track status progression with immutable timestamps, official remarks, and export official printable acknowledgment slips.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card-custom p-4 h-100 border-0 shadow-sm" style="background: #f8fafc;">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="stat-icon-glow glow-success">
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <span class="badge bg-success text-white rounded-circle p-2" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700;">4</span>
+          </div>
+          <h5 class="fw-bold mb-2">4. Feedback &amp; Review</h5>
+          <p class="text-muted small mb-0">
+            Students rate the resolution quality (1 to 5 Stars) and submit feedback directly affecting university quality metrics.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Grievance Categories Section -->
+<section class="py-5" style="background-color: var(--bg-main);">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold fs-1">Covering Every Aspect of Campus Life</h2>
+      <p class="text-muted">Dedicated departments ready to address student grievances promptly</p>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-mortarboard-fill"></i></div>
+          <h5 class="fw-bold mb-1">Academic</h5>
+          <small class="text-muted">Lectures, schedules, grading</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-building-fill"></i></div>
+          <h5 class="fw-bold mb-1">Infrastructure</h5>
+          <small class="text-muted">Labs, classrooms, AC, electricity</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-house-door-fill"></i></div>
+          <h5 class="fw-bold mb-1">Hostel</h5>
+          <small class="text-muted">Rooms, plumbing, Wi-Fi, laundry</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-cup-hot-fill"></i></div>
+          <h5 class="fw-bold mb-1">Mess &amp; Food</h5>
+          <small class="text-muted">Cafeteria hygiene, food quality</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-journal-bookmark-fill"></i></div>
+          <h5 class="fw-bold mb-1">Library</h5>
+          <small class="text-muted">Reference textbooks, quiet study</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-bus-front-fill"></i></div>
+          <h5 class="fw-bold mb-1">Transportation</h5>
+          <small class="text-muted">College buses, campus shuttles</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-grid-fill"></i></div>
+          <h5 class="fw-bold mb-1">Other</h5>
+          <small class="text-muted">Sports, security, miscellaneous</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card border-primary" style="background: #eef2ff;">
+          <div class="text-indigo fs-1 mb-2"><i class="bi bi-incognito text-primary"></i></div>
+          <h5 class="fw-bold mb-1">Confidential</h5>
+          <small class="text-muted">Whistleblower identity protection</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Student Testimonials Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <span class="badge bg-success-subtle text-success fw-bold text-uppercase px-3 py-2 rounded-pill small">Verified Reviews</span>
+      <h2 class="fw-bold mt-2 fs-1">Trusted by Students &amp; Faculty</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Sarah J." class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <h6 class="fw-bold mb-0">Sarah Jenkins</h6>
+                <small class="text-muted">Electrical Engineering • Year 3</small>
+              </div>
+            </div>
+            <span class="text-warning small">★★★★★</span>
+          </div>
+          <p class="text-muted small mb-0">
+            "Our hostel Wi-Fi was fixed within 12 hours of filing the complaint. Rating the resolution 5 stars and giving feedback directly makes administration accountable."
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80" alt="John D." class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <h6 class="fw-bold mb-0">John Doe</h6>
+                <small class="text-muted">Computer Science • Year 4</small>
+              </div>
+            </div>
+            <span class="text-warning small">★★★★★</span>
+          </div>
+          <p class="text-muted small mb-0">
+            "The priority selector and printable receipt are awesome features. I could print out the official acknowledgment slip for our department coordinator."
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Rahul S." class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <h6 class="fw-bold mb-0">Rahul Sharma</h6>
+                <small class="text-muted">Mechanical Engineering • Year 2</small>
+              </div>
+            </div>
+            <span class="text-warning small">★★★★☆</span>
+          </div>
+          <p class="text-muted small mb-0">
+            "Submitting anonymous feedback for mess food hygiene made sure we could speak up without any hesitation. The issue was addressed immediately!"
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive FAQ Accordion Section -->
+<section class="py-5" style="background-color: var(--bg-main);">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-3 py-2 rounded-pill small">Got Questions?</span>
+      <h2 class="fw-bold mt-2 fs-1">Frequently Asked Questions</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Everything you need to know about college complaint submission, tracking, urgency, and resolution.
+      </p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="accordion border-0 shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+          <!-- Item 1 -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="faqHeading1">
+              <button class="accordion-button fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+                <i class="bi bi-clock-history text-primary me-2"></i> How quickly does administration respond to a submitted grievance?
+              </button>
+            </h2>
+            <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Complaints are prioritized based on urgency level. Critical safety and infrastructure faults trigger immediate work orders with target ETAs, and status updates appear in real-time on your dashboard.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="faqHeading2">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                <i class="bi bi-incognito text-primary me-2"></i> Can I submit a grievance anonymously without revealing my identity?
+              </button>
+            </h2>
+            <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Yes! When submitting sensitive matters (e.g. food hygiene, faculty concerns, harassment), check the <strong>Submit Anonymously</strong> box. Your name and registration number will be completely masked on public and admin rosters as <em>Anonymous Student [Protected]</em>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="faqHeading3">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                <i class="bi bi-printer-fill text-primary me-2"></i> Can I generate an official printable acknowledgment receipt?
+              </button>
+            </h2>
+            <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Yes! Every grievance page includes an official <strong>Print Grievance Receipt</strong> option that generates an A4 formatted dossier complete with reference number, assigned department, timeline, and digital seal.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="accordion-item border-0">
+            <h2 class="accordion-header" id="faqHeading4">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                <i class="bi bi-star-fill text-primary me-2"></i> Can I rate the resolution quality after an issue is solved?
+              </button>
+            </h2>
+            <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Yes. Once a complaint reaches <strong>Resolved</strong> status, you can submit a 1 to 5 star rating and written feedback to confirm if the resolution met your expectations.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%); color: #ffffff;">
+  <div class="container py-4 text-center">
+    <div class="mx-auto" style="max-width: 650px;">
+      <h2 class="fw-bold display-6 mb-3 text-white">Experience Fast, Modern Grievance Redressal Today</h2>
+      <p class="text-white-50 mb-4">
+        Join campus students and administrators using UniResolve for accountable problem resolution.
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'register' %}" class="btn btn-primary-modern btn-lg px-4 py-2">Create Student Account</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4 py-2">Portal Sign In</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+<!-- Grievance Categories Section -->
+<section class="py-5" style="background-color: var(--bg-main);">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold fs-1">Covering Every Aspect of Campus Life</h2>
+      <p class="text-muted">Dedicated departments ready to address student grievances promptly</p>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-mortarboard-fill"></i></div>
+          <h5 class="fw-bold mb-1">Academic</h5>
+          <small class="text-muted">Lectures, schedules, grading</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-building-fill"></i></div>
+          <h5 class="fw-bold mb-1">Infrastructure</h5>
+          <small class="text-muted">Labs, classrooms, AC, electricity</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-house-door-fill"></i></div>
+          <h5 class="fw-bold mb-1">Hostel</h5>
+          <small class="text-muted">Rooms, plumbing, Wi-Fi, laundry</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-cup-hot-fill"></i></div>
+          <h5 class="fw-bold mb-1">Mess &amp; Food</h5>
+          <small class="text-muted">Cafeteria hygiene, food quality</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-journal-bookmark-fill"></i></div>
+          <h5 class="fw-bold mb-1">Library</h5>
+          <small class="text-muted">Reference textbooks, quiet study</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-bus-front-fill"></i></div>
+          <h5 class="fw-bold mb-1">Transportation</h5>
+          <small class="text-muted">College buses, campus shuttles</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card">
+          <div class="text-primary fs-1 mb-2"><i class="bi bi-grid-fill"></i></div>
+          <h5 class="fw-bold mb-1">Other</h5>
+          <small class="text-muted">Sports, security, miscellaneous</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-category-card border-primary" style="background: #eef2ff;">
+          <div class="text-indigo fs-1 mb-2"><i class="bi bi-incognito text-primary"></i></div>
+          <h5 class="fw-bold mb-1">Confidential</h5>
+          <small class="text-muted">Whistleblower identity protection</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Student Testimonials Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <span class="badge bg-success-subtle text-success fw-bold text-uppercase px-3 py-2 rounded-pill small">Verified Reviews</span>
+      <h2 class="fw-bold mt-2 fs-1">Trusted by Students &amp; Faculty</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Sarah J." class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <h6 class="fw-bold mb-0">Sarah Jenkins</h6>
+                <small class="text-muted">Electrical Engineering • Year 3</small>
+              </div>
+            </div>
+            <span class="text-warning small">★★★★★</span>
+          </div>
+          <p class="text-muted small mb-0">
+            "Our hostel Wi-Fi was fixed within 12 hours of filing the complaint. Rating the resolution 5 stars and giving feedback directly makes administration accountable."
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80" alt="John D." class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <h6 class="fw-bold mb-0">John Doe</h6>
+                <small class="text-muted">Computer Science • Year 4</small>
+              </div>
+            </div>
+            <span class="text-warning small">★★★★★</span>
+          </div>
+          <p class="text-muted small mb-0">
+            "The priority selector and printable receipt are awesome features. I could print out the official acknowledgment slip for our department coordinator."
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Rahul S." class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+              <div>
+                <h6 class="fw-bold mb-0">Rahul Sharma</h6>
+                <small class="text-muted">Mechanical Engineering • Year 2</small>
+              </div>
+            </div>
+            <span class="text-warning small">★★★★☆</span>
+          </div>
+          <p class="text-muted small mb-0">
+            "Submitting anonymous feedback for mess food hygiene made sure we could speak up without any hesitation. The issue was addressed immediately!"
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive FAQ Accordion Section -->
+<section class="py-5" style="background-color: var(--bg-main);">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-3 py-2 rounded-pill small">Got Questions?</span>
+      <h2 class="fw-bold mt-2 fs-1">Frequently Asked Questions</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Everything you need to know about college complaint submission, tracking, urgency, and resolution.
+      </p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="accordion border-0 shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+          <!-- Item 1 -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="faqHeading1">
+              <button class="accordion-button fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+                <i class="bi bi-clock-history text-primary me-2"></i> How quickly does administration respond to a submitted grievance?
+              </button>
+            </h2>
+            <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Complaints are prioritized based on urgency level. Critical safety and infrastructure faults trigger immediate work orders with target ETAs, and status updates appear in real-time on your dashboard.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="faqHeading2">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                <i class="bi bi-incognito text-primary me-2"></i> Can I submit a grievance anonymously without revealing my identity?
+              </button>
+            </h2>
+            <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Yes! When submitting sensitive matters (e.g. food hygiene, faculty concerns, harassment), check the <strong>Submit Anonymously</strong> box. Your name and registration number will be completely masked on public and admin rosters as <em>Anonymous Student [Protected]</em>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="faqHeading3">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                <i class="bi bi-printer-fill text-primary me-2"></i> Can I generate an official printable acknowledgment receipt?
+              </button>
+            </h2>
+            <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Yes! Every grievance page includes an official <strong>Print Grievance Receipt</strong> option that generates an A4 formatted dossier complete with reference number, assigned department, timeline, and digital seal.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="accordion-item border-0">
+            <h2 class="accordion-header" id="faqHeading4">
+              <button class="accordion-button collapsed fw-bold text-dark bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                <i class="bi bi-star-fill text-primary me-2"></i> Can I rate the resolution quality after an issue is solved?
+              </button>
+            </h2>
+            <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small bg-light" style="line-height: 1.6;">
+                Yes. Once a complaint reaches <strong>Resolved</strong> status, you can submit a 1 to 5 star rating and written feedback to confirm if the resolution met your expectations.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%); color: #ffffff;">
+  <div class="container py-4 text-center">
+    <div class="mx-auto" style="max-width: 650px;">
+      <h2 class="fw-bold display-6 mb-3 text-white">Experience Fast, Modern Grievance Redressal Today</h2>
+      <p class="text-white-50 mb-4">
+        Join campus students and administrators using UniResolve for accountable problem resolution.
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'register' %}" class="btn btn-primary-modern btn-lg px-4 py-2">Create Student Account</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4 py-2">Portal Sign In</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

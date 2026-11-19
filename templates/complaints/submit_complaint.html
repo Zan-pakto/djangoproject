@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit New Grievance – UniResolve{% endblock %}
+{% block page_title %}Submit Grievance{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card-custom bg-white">
+      <div class="card-header-clean d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 fw-bold text-dark">
+            <i class="bi bi-pencil-square text-primary me-2"></i> File a New Grievance
+          </h5>
+          <small class="text-muted">Fill out the details below. Our campus redressal team will investigate promptly.</small>
+        </div>
+        <span class="badge bg-primary-subtle text-primary py-1 px-2 fw-semibold">UniResolve Form</span>
+      </div>
+
+      <div class="p-4">
+        <form method="post" enctype="multipart/form-data" novalidate id="complaintSubmitForm">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 small mb-3 border-0">
+              {% for error in form.non_field_errors %}
+                <div><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Complaint Title -->
+          <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+              Grievance Title <span class="text-danger">*</span>
+            </label>
+            {{ form.title }}
+            <div class="form-text small text-muted">A clear, specific title (e.g., "Air conditioner leaking water in Lab 3, 2nd floor").</div>
+            {% if form.title.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.title.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Category & Priority Row -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">
+                Category <span class="text-danger">*</span>
+              </label>
+              {{ form.category }}
+              {% if form.category.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.category.errors %}{{ error }}{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label for="{{ form.priority.id_for_label }}" class="form-label fw-bold d-flex align-items-center justify-content-between">
+                <span>{{ form.priority.label }} <span class="text-danger">*</span></span>
+                <span class="badge bg-light text-muted border small font-monospace">4 Tiers</span>
+              </label>
+              {{ form.priority }}
+              <div class="form-text small text-muted">Select 'Critical' for safety or urgent facility hazards.</div>
+              {% if form.priority.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.priority.errors %}{{ error }}{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Confidential / Anonymous Submission Option -->
+          <div class="card p-3 mb-3 border-primary-subtle" style="background: #f8faff;">
+            <div class="form-check d-flex align-items-start gap-2">
+              {{ form.is_anonymous }}
+              <label class="form-check-label fw-semibold text-dark" for="anonymousCheck">
+                <i class="bi bi-incognito text-primary me-1"></i>
+                Submit Anonymously (Confidential / Whistleblower Protection)
+                <div class="text-muted fw-normal small mt-1" style="line-height: 1.4;">
+                  Check this box if your grievance involves sensitive topics (e.g. food hygiene, faculty bias, harassment). Your name and registration number will be completely masked on public and admin rosters as <em>Anonymous Student [Protected]</em>.
+                </div>
+              </label>
+            </div>
+            {% if form.is_anonymous.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.is_anonymous.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+              Detailed Description <span class="text-danger">*</span>
+            </label>
+            {{ form.description }}
+            <div class="d-flex justify-content-between align-items-center mt-1">
+              <span class="small text-muted" id="descCharCount"><i class="bi bi-fonts me-1"></i>0 characters entered</span>
+              <span class="small text-muted fst-italic">Min 15 characters required</span>
+            </div>
+            {% if form.description.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.description.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Image Upload & Live Preview Section -->
+          <div class="mb-4">
+            <div class="card p-3 bg-light border rounded-3">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label for="id_image" class="form-label fw-bold mb-0">
+                  <i class="bi bi-camera-fill text-primary me-1"></i> Supporting Photographic Evidence
+                </label>
+                <span class="badge bg-secondary-subtle text-secondary small">Optional • Max 5 MB</span>
+              </div>
+              {{ form.image }}
+              <div class="form-text small text-muted mt-2">
+                <i class="bi bi-info-circle me-1"></i> Choose an image file from your device (JPG, PNG, WEBP, GIF). A live preview will immediately appear below.
+              </div>
+            </div>
+
+            <!-- Live Image Preview Card -->
+            <div class="card p-3 border shadow-sm rounded-3 mt-3" id="imagePreviewCard" style="display: none; background: #ffffff;">
+              <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                <span class="fw-bold text-dark small d-flex align-items-center gap-2">
+                  <i class="bi bi-check-circle-fill text-success"></i> Photo Selected &amp; Preview Ready
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" id="clearImageBtn" title="Remove selected image">
+                  <i class="bi bi-trash3-fill me-1"></i> Remove Photo
+                </button>
+              </div>
+              <div class="text-center p-3 rounded bg-light border">
+                <img src="" alt="Selected Photo Preview" class="img-fluid rounded shadow-sm" id="liveImagePreview" style="max-height: 260px; object-fit: contain;">
+              </div>
+              <div class="small text-muted text-center mt-2" id="liveImageMeta"></div>
+            </div>
+
+            {% if form.image.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.image.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex align-items-center gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-primary-modern px-4 py-2 fw-bold">
+              <i class="bi bi-send-fill me-1"></i> Submit Grievance
+            </button>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary px-3 py-2 fw-medium">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guidelines & Help Column -->
+  <div class="col-lg-4">
+    <div class="card-custom bg-white p-4 mb-4">
+      <h6 class="fw-bold mb-3 d-flex align-items-center gap-2 text-dark">
+        <i class="bi bi-lightbulb-fill text-warning"></i> Guidelines for Fast Resolution
+      </h6>
+      <ul class="text-muted small ps-3 mb-0 d-flex flex-column gap-2">
+        <li><strong>Location Details:</strong> Mention exact building, floor, classroom or hostel wing number.</li>
+        <li><strong>Attach Photos:</strong> Taking a photo of broken equipment or maintenance issues speeds up technician dispatch.</li>
+        <li><strong>Objectivity:</strong> State the problem clearly and constructively.</li>
+        <li><strong>Unique Tracking:</strong> You will immediately receive a unique Tracking ID to monitor status live.</li>
+      </ul>
+    </div>
+
+    <div class="card-custom bg-white p-4 border-primary" style="background: #eff6ff;">
+      <h6 class="fw-bold text-dark mb-2">
+        <i class="bi bi-shield-lock-fill text-primary me-1"></i> Student Privacy
+      </h6>
+      <p class="text-muted small mb-0">
+        Your grievances are strictly confidential between you and designated college administrators. Other students have no access to your submissions.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Direct fail-safe image preview handler
+  const imageInput = document.getElementById('id_image');
+  const previewCard = document.getElementById('imagePreviewCard');
+  const previewImg = document.getElementById('liveImagePreview');
+  const metaText = document.getElementById('liveImageMeta');
+  const clearBtn = document.getElementById('clearImageBtn');
+
+  if (imageInput) {
+    imageInput.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        const file = this.files[0];
+
+        // Max 5MB check
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Selected image exceeds the 5MB size limit. Please choose a smaller file.');
+          this.value = '';
+          if (previewCard) previewCard.style.display = 'none';
+          return;
+        }
+
+        // Live preview via FileReader
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            if (previewImg) {
+              previewImg.src = e.target.result;
+            }
+            if (metaText) {
+              const sizeKb = (file.size / 1024).toFixed(1);
+              metaText.innerHTML = `<span class="badge bg-light text-dark border me-1">${file.name}</span> <span class="badge bg-light text-muted border">${sizeKb} KB</span>`;
+            }
+            if (previewCard) {
+              previewCard.style.display = 'block';
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    });
+  }
+
+  if (clearBtn && imageInput) {
+    clearBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      imageInput.value = '';
+      if (previewCard) previewCard.style.display = 'none';
+      if (previewImg) previewImg.src = '';
+      if (metaText) metaText.innerHTML = '';
+    });
+  }
+});
+</script>
+{% endblock %}

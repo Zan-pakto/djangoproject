@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}UniResolve – Smart Student Grievance &amp; Redressal Portal{% endblock %}</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Custom Modern SaaS Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+  <!-- Authenticated Production SaaS Dashboard Layout -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <div class="app-wrapper">
+    <!-- Dark Navy Sidebar -->
+    <aside class="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" style="background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+          <i class="bi bi-shield-fill-check"></i>
+        </div>
+        <div>
+          <div class="lh-1 text-white fw-bold fs-5 tracking-tight">UniResolve</div>
+          <small class="text-white-50" style="font-size: 0.7rem; font-weight: 500;">Academic Redressal</small>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        {% if request.user.profile.is_administrator or request.user.is_staff or request.user.is_superuser %}
+          <!-- Administrator Console Navigation -->
+          <li class="sidebar-heading">Administration</li>
+          <li class="sidebar-item">
+            <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+              <i class="bi bi-grid-1x2-fill"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="{% url 'all_complaints' %}" class="sidebar-link {% if request.resolver_match.url_name == 'all_complaints' or request.resolver_match.url_name == 'admin_complaint_detail' %}active{% endif %}">
+              <i class="bi bi-card-checklist"></i>
+              <span>All Complaints</span>
+              {% if nav_pending_count > 0 %}
+                <span class="badge bg-warning text-dark ms-auto font-monospace" style="font-size: 0.7rem;">{{ nav_pending_count }} pending</span>
+              {% endif %}
+            </a>
+          </li>
+          <li class="sidebar-heading mt-3">System</li>
+          <li class="sidebar-item">
+            <a href="/django-admin/" target="_blank" class="sidebar-link">
+              <i class="bi bi-sliders2"></i>
+              <span>Django Admin</span>
+            </a>
+          </li>
+        {% else %}
+          <!-- Student Portal Navigation -->
+          <li class="sidebar-heading">Student Portal</li>
+          <li class="sidebar-item">
+            <a href="{% url 'student_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+              <i class="bi bi-speedometer2"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="{% url 'submit_complaint' %}" class="sidebar-link {% if request.resolver_match.url_name == 'submit_complaint' %}active{% endif %}">
+              <i class="bi bi-plus-circle-fill"></i>
+              <span>Submit Complaint</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="{% url 'my_complaints' %}" class="sidebar-link {% if request.resolver_match.url_name == 'my_complaints' or request.resolver_match.url_name == 'complaint_detail' or request.resolver_match.url_name == 'complaint_history' %}active{% endif %}">
+              <i class="bi bi-collection-fill"></i>
+              <span>My Complaints</span>
+              {% if nav_total_count > 0 %}
+                <span class="badge bg-primary text-white ms-auto font-monospace" style="font-size: 0.7rem;">{{ nav_total_count }}</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+
+      <!-- User Profile Footnote -->
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <div class="user-avatar-circle">
+            {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+          </div>
+          <div class="overflow-hidden">
+            <div class="text-white text-truncate fw-bold" style="font-size: 0.88rem;">
+              {{ request.user.get_full_name|default:request.user.username }}
+            </div>
+            <div class="mt-1">
+              {% if request.user.profile.is_administrator or request.user.is_staff %}
+                <span class="badge bg-danger text-white py-1 px-2" style="font-size: 0.68rem;">Administrator</span>
+              {% else %}
+                <span class="badge bg-primary text-white py-1 px-2 font-monospace" style="font-size: 0.68rem;">{{ request.user.profile.registration_number|default:request.user.username }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary d-lg-none" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="d-none d-sm-flex align-items-center gap-2">
+            <span class="badge bg-light text-muted border py-1 px-2 fw-semibold" style="font-size: 0.75rem;">
+              UniResolve Campus
+            </span>
+            <span class="text-muted small">/</span>
+            <span class="fw-bold text-dark">{% block page_title %}Dashboard{% endblock %}</span>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          {% if not request.user.profile.is_administrator and not request.user.is_staff %}
+            <a href="{% url 'submit_complaint' %}" class="btn btn-sm btn-primary-modern d-none d-md-inline-flex align-items-center gap-1">
+              <i class="bi bi-plus-lg"></i>
+              <span>New Grievance</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'landing' %}" class="btn btn-sm btn-light border text-muted d-none d-md-inline-flex align-items-center gap-1" target="_blank">
+            <i class="bi bi-box-arrow-up-right"></i>
+            <span>Portal Home</span>
+          </a>
+          <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 fw-semibold">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Sign Out</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="app-content">
+        <!-- Toast & Flash Messages -->
+        {% if messages %}
+          <div class="mb-4">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'danger' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="py-3 px-4 text-center text-muted border-top bg-white small">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+          <span>&copy; 2026 UniResolve – Smart Academic Grievance &amp; Redressal Portal.</span>
+          <span class="text-muted"><i class="bi bi-shield-check text-primary me-1"></i> UGC &amp; AICTE Compliant Framework</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+{% else %}
+  <!-- Unauthenticated Public Layout Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--navy-dark); border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="container py-1">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{% url 'landing' %}">
+        <div class="sidebar-brand-icon" style="width: 36px; height: 36px; font-size: 1.2rem; background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+          <i class="bi bi-shield-fill-check"></i>
+        </div>
+        UniResolve
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navPublic" aria-controls="navPublic" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navPublic">
+        <ul class="navbar-nav ms-auto align-items-center gap-3 mt-3 mt-lg-0">
+          <li class="nav-item">
+            <a class="nav-link text-white fw-medium" href="{% url 'landing' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm px-3 fw-semibold" href="{% url 'login' %}">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-primary-modern btn-sm px-3 fw-semibold" href="{% url 'register' %}">
+              <i class="bi bi-person-plus-fill me-1"></i> Student Register
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages for Public Layout -->
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+          <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'danger' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main>
+    {% block public_content %}{% endblock %}
+  </main>
+
+  <footer class="py-4 text-center text-muted border-top bg-white small mt-auto">
+    <div class="container">
+      UniResolve – Smart Student Grievance &amp; Redressal Portal. Built with Django &amp; Bootstrap 5.
+    </div>
+  </footer>
+{% endif %}
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js for High-End Interactive SaaS Dashboards -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<!-- Custom Modern SaaS JS -->
+<script src="{% static 'js/script.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
