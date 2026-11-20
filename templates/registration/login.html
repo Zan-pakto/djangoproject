@@ -1,108 +1,109 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Sign In – UniResolve Portal{% endblock %}
+{% block title %}Sign In – UniResolve{% endblock %}
 
 {% block public_content %}
-<div class="auth-page-container">
-  <div class="auth-card">
-    <!-- Header with Brand Icon -->
-    <div class="text-center mb-4">
-      <div class="auth-icon-badge mx-auto">
-        <i class="bi bi-shield-fill-check"></i>
-      </div>
-      <h3 class="fw-bold text-dark mb-1">Welcome Back</h3>
-      <p class="text-muted small mb-0">Sign in to your Student or Administrator portal</p>
-    </div>
+<div class="py-5" style="background: #f8fafc; min-height: 85vh; display: flex; align-items: center;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+        
+        <!-- Main Login Card -->
+        <div class="card border-0 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0 !important; background: #ffffff;">
+          <div class="card-body p-4 p-sm-5">
+            
+            <!-- Brand Icon & Header -->
+            <div class="text-center mb-4">
+              <div class="mx-auto mb-3" style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #06b6d4); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
+                <i class="bi bi-shield-fill-check"></i>
+              </div>
+              <h3 class="fw-bold text-dark mb-1" style="font-size: 1.5rem;">Welcome Back</h3>
+              <p class="text-muted small mb-0">Sign in to your student or admin portal</p>
+            </div>
 
-    <!-- Login Form -->
-    <form method="post" novalidate id="loginForm">
-      {% csrf_token %}
+            <!-- Form -->
+            <form method="post" novalidate>
+              {% csrf_token %}
 
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger py-2 px-3 small mb-3 border-0 rounded-3">
-          {% for error in form.non_field_errors %}
-            <div><i class="bi bi-exclamation-circle-fill me-1"></i> {{ error }}</div>
-          {% endfor %}
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 px-3 small mb-3 border-0 rounded-3">
+                  {% for error in form.non_field_errors %}
+                    <div><i class="bi bi-exclamation-circle-fill me-1"></i> {{ error }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <!-- Identifier -->
+              <div class="mb-3">
+                <label for="{{ form.identifier.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                  Registration No / Email / Username
+                </label>
+                {{ form.identifier }}
+                {% if form.identifier.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.identifier.errors %}{{ error }}{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Password -->
+              <div class="mb-4">
+                <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                  Password
+                </label>
+                <div class="position-relative">
+                  {{ form.password }}
+                  <button type="button" class="btn btn-sm text-muted position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent toggle-password-btn" data-target="id_password" aria-label="Toggle password visibility">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                {% if form.password.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.password.errors %}{{ error }}{% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn text-white w-100 py-2.5 fw-semibold shadow-sm" style="background: #4f46e5; border-radius: 10px; font-size: 0.95rem;">
+                Sign In
+              </button>
+            </form>
+
+            <!-- 1-Click Evaluator Demo Box -->
+            <div class="mt-4 pt-3 border-top">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-uppercase fw-bold text-muted" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                  <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Demo Autofill
+                </span>
+                <span class="badge bg-light text-muted border" style="font-size: 0.65rem;">Click to Test</span>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="button" class="btn btn-sm btn-light border text-start d-flex justify-content-between align-items-center py-2 px-3" style="border-radius: 8px;" onclick="fillDemoCredentials('admin', 'Admin@12345')">
+                  <span class="fw-semibold text-dark"><i class="bi bi-shield-fill text-danger me-1"></i> Admin</span>
+                  <span class="text-muted small font-monospace">admin</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-light border text-start d-flex justify-content-between align-items-center py-2 px-3" style="border-radius: 8px;" onclick="fillDemoCredentials('STU2024001', 'Student@12345')">
+                  <span class="fw-semibold text-dark"><i class="bi bi-mortarboard-fill text-primary me-1"></i> Student</span>
+                  <span class="text-muted small font-monospace">STU2024001</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Footer Link -->
+            <div class="text-center mt-4 pt-2">
+              <span class="text-muted small">New student?</span>
+              <a href="{% url 'register' %}" class="fw-semibold ms-1 small" style="color: #4f46e5;">
+                Create an account
+              </a>
+            </div>
+
+          </div>
         </div>
-      {% endif %}
 
-      <!-- Identifier -->
-      <div class="mb-3">
-        <label for="{{ form.identifier.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-          Registration Number, Email, or Username
-        </label>
-        <div class="input-group">
-          <span class="input-group-text bg-light text-muted border-end-0">
-            <i class="bi bi-person-fill"></i>
-          </span>
-          {{ form.identifier }}
-        </div>
-        {% if form.identifier.errors %}
-          <div class="text-danger small mt-1">
-            {% for error in form.identifier.errors %}{{ error }}{% endfor %}
-          </div>
-        {% endif %}
       </div>
-
-      <!-- Password -->
-      <div class="mb-3">
-        <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-          Password
-        </label>
-        <div class="input-group">
-          <span class="input-group-text bg-light text-muted border-end-0">
-            <i class="bi bi-key-fill"></i>
-          </span>
-          {{ form.password }}
-          <button type="button" class="btn btn-outline-secondary border-start-0 toggle-password-btn" data-target="id_password" aria-label="Toggle password visibility">
-            <i class="bi bi-eye"></i>
-          </button>
-        </div>
-        {% if form.password.errors %}
-          <div class="text-danger small mt-1">
-            {% for error in form.password.errors %}{{ error }}{% endfor %}
-          </div>
-        {% endif %}
-      </div>
-
-      <button type="submit" class="auth-btn-primary mt-2">
-        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Account
-      </button>
-    </form>
-
-    <!-- 1-Click Demo Shortcut Box for Evaluation -->
-    <div class="evaluator-demo-box">
-      <div class="d-flex align-items-center justify-content-between mb-2">
-        <span class="text-uppercase fw-bold text-muted" style="font-size: 0.7rem; letter-spacing: 0.05em;">
-          <i class="bi bi-lightning-charge-fill text-warning me-1"></i> 1-Click Demo Login
-        </span>
-        <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.65rem;">Quick Fill</span>
-      </div>
-      <div class="d-flex flex-column gap-2">
-        <button type="button" class="evaluator-demo-btn" onclick="fillDemoCredentials('admin', 'Admin@12345')">
-          <div>
-            <i class="bi bi-shield-fill text-danger me-1"></i>
-            <strong>Admin:</strong> admin
-          </div>
-          <span class="text-muted small">Admin@12345</span>
-        </button>
-        <button type="button" class="evaluator-demo-btn" onclick="fillDemoCredentials('STU2024001', 'Student@12345')">
-          <div>
-            <i class="bi bi-mortarboard-fill text-primary me-1"></i>
-            <strong>Student:</strong> STU2024001
-          </div>
-          <span class="text-muted small">Student@12345</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="text-center mt-4 pt-3 border-top">
-      <span class="text-muted small">New student on campus?</span>
-      <a href="{% url 'register' %}" class="fw-bold ms-1 text-primary text-decoration-none">
-        Register Account &rarr;
-      </a>
     </div>
   </div>
 </div>

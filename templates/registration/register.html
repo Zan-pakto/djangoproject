@@ -1,177 +1,160 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Student Registration – UniResolve Portal{% endblock %}
+{% block title %}Student Registration – UniResolve{% endblock %}
 
 {% block public_content %}
-<div class="auth-page-container">
-  <div class="auth-card auth-card-wide">
-    <!-- Header with Brand Icon -->
-    <div class="text-center mb-4">
-      <div class="auth-icon-badge mx-auto">
-        <i class="bi bi-person-plus-fill"></i>
+<div class="py-5" style="background: #f8fafc; min-height: 85vh; display: flex; align-items: center;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-11 col-sm-10 col-md-8 col-lg-7 col-xl-6">
+        
+        <!-- Main Register Card -->
+        <div class="card border-0 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0 !important; background: #ffffff;">
+          <div class="card-body p-4 p-sm-5">
+            
+            <!-- Header with Brand Icon -->
+            <div class="text-center mb-4">
+              <div class="mx-auto mb-3" style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #06b6d4); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
+                <i class="bi bi-person-plus-fill"></i>
+              </div>
+              <h3 class="fw-bold text-dark mb-1" style="font-size: 1.5rem;">Create Student Account</h3>
+              <p class="text-muted small mb-0">Fill in your details to register on the grievance portal</p>
+            </div>
+
+            <!-- Register Form -->
+            <form method="post" novalidate id="registerForm">
+              {% csrf_token %}
+
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 px-3 small mb-3 border-0 rounded-3">
+                  {% for error in form.non_field_errors %}
+                    <div><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <div class="row g-3">
+                <!-- Full Name -->
+                <div class="col-sm-6">
+                  <label for="{{ form.full_name.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.full_name.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.full_name }}
+                  {% if form.full_name.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.full_name.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Registration Number -->
+                <div class="col-sm-6">
+                  <label for="{{ form.registration_number.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.registration_number.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.registration_number }}
+                  {% if form.registration_number.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.registration_number.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Email Address -->
+                <div class="col-12">
+                  <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.email.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.email }}
+                  {% if form.email.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.email.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Department -->
+                <div class="col-sm-6">
+                  <label for="{{ form.department.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.department.label }}
+                  </label>
+                  {{ form.department }}
+                  {% if form.department.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.department.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Phone Number -->
+                <div class="col-sm-6">
+                  <label for="{{ form.phone_number.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.phone_number.label }}
+                  </label>
+                  {{ form.phone_number }}
+                  {% if form.phone_number.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="col-sm-6">
+                  <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.password.label }} <span class="text-danger">*</span>
+                  </label>
+                  <div class="position-relative">
+                    {{ form.password }}
+                    <button type="button" class="btn btn-sm text-muted position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent toggle-password-btn" data-target="id_password" aria-label="Toggle password visibility">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  {% if form.password.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.password.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-sm-6">
+                  <label for="{{ form.confirm_password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
+                    {{ form.confirm_password.label }} <span class="text-danger">*</span>
+                  </label>
+                  <div class="position-relative">
+                    {{ form.confirm_password }}
+                    <button type="button" class="btn btn-sm text-muted position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent toggle-password-btn" data-target="id_confirm_password" aria-label="Toggle password visibility">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  {% if form.confirm_password.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in form.confirm_password.errors %}{{ error }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn text-white w-100 py-2.5 fw-semibold shadow-sm mt-4" style="background: #4f46e5; border-radius: 10px; font-size: 0.95rem;">
+                Register Student Account
+              </button>
+            </form>
+
+            <!-- Footer Link -->
+            <div class="text-center mt-4 pt-3 border-top">
+              <span class="text-muted small">Already registered?</span>
+              <a href="{% url 'login' %}" class="fw-semibold ms-1 small" style="color: #4f46e5;">
+                Sign In here
+              </a>
+            </div>
+
+          </div>
+        </div>
+
       </div>
-      <h3 class="fw-bold text-dark mb-1">Create Student Account</h3>
-      <p class="text-muted small mb-0">Enter your university details to file and track grievances</p>
-    </div>
-
-    <!-- Registration Form -->
-    <form method="post" novalidate id="registerForm">
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger py-2 px-3 small mb-3 border-0 rounded-3">
-          {% for error in form.non_field_errors %}
-            <div><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      <div class="row g-3">
-        <!-- Full Name -->
-        <div class="col-md-6">
-          <label for="{{ form.full_name.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            {{ form.full_name.label }} <span class="text-danger">*</span>
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-person-fill"></i>
-            </span>
-            {{ form.full_name }}
-          </div>
-          {% if form.full_name.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.full_name.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Registration Number -->
-        <div class="col-md-6">
-          <label for="{{ form.registration_number.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            {{ form.registration_number.label }} <span class="text-danger">*</span>
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-card-heading"></i>
-            </span>
-            {{ form.registration_number }}
-          </div>
-          {% if form.registration_number.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.registration_number.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Email Address -->
-        <div class="col-12">
-          <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            {{ form.email.label }} <span class="text-danger">*</span>
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-envelope-at-fill"></i>
-            </span>
-            {{ form.email }}
-          </div>
-          {% if form.email.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.email.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Department -->
-        <div class="col-md-6">
-          <label for="{{ form.department.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            Department / Major (Optional)
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-mortarboard-fill"></i>
-            </span>
-            {{ form.department }}
-          </div>
-          {% if form.department.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.department.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Phone Number -->
-        <div class="col-md-6">
-          <label for="{{ form.phone_number.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            Phone Number (Optional)
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-telephone-fill"></i>
-            </span>
-            {{ form.phone_number }}
-          </div>
-          {% if form.phone_number.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Password -->
-        <div class="col-md-6">
-          <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            Password <span class="text-danger">*</span>
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-key-fill"></i>
-            </span>
-            {{ form.password }}
-            <button type="button" class="btn btn-outline-secondary border-start-0 toggle-password-btn" data-target="id_password" aria-label="Toggle password visibility">
-              <i class="bi bi-eye"></i>
-            </button>
-          </div>
-          {% if form.password.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.password.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="col-md-6">
-          <label for="{{ form.confirm_password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
-            Confirm Password <span class="text-danger">*</span>
-          </label>
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0">
-              <i class="bi bi-shield-check"></i>
-            </span>
-            {{ form.confirm_password }}
-            <button type="button" class="btn btn-outline-secondary border-start-0 toggle-password-btn" data-target="id_confirm_password" aria-label="Toggle password visibility">
-              <i class="bi bi-eye"></i>
-            </button>
-          </div>
-          {% if form.confirm_password.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.confirm_password.errors %}{{ error }}{% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>
-
-      <button type="submit" class="auth-btn-primary mt-4">
-        <i class="bi bi-person-check-fill me-1"></i> Register Student Account
-      </button>
-    </form>
-
-    <!-- Footer -->
-    <div class="text-center mt-4 pt-3 border-top">
-      <span class="text-muted small">Already registered?</span>
-      <a href="{% url 'login' %}" class="fw-bold ms-1 text-primary text-decoration-none">
-        Sign In here &rarr;
-      </a>
     </div>
   </div>
 </div>
