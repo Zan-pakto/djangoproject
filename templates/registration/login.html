@@ -4,56 +4,23 @@
 {% block title %}Sign In – UniResolve Portal{% endblock %}
 
 {% block public_content %}
-<div class="auth-split-layout">
-  <!-- Left Visual Side with High-Res Campus Photo -->
-  <div class="auth-split-visual" style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80');">
-    <div class="d-flex align-items-center gap-2">
-      <div class="sidebar-brand-icon" style="width: 44px; height: 44px; font-size: 1.4rem; background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+<div class="auth-page-container">
+  <div class="auth-card">
+    <!-- Header with Brand Icon -->
+    <div class="text-center mb-4">
+      <div class="auth-icon-badge mx-auto">
         <i class="bi bi-shield-fill-check"></i>
       </div>
-      <div>
-        <h4 class="text-white fw-bold mb-0">UniResolve</h4>
-        <small class="text-white-50">Smart Academic Grievance Redressal</small>
-      </div>
+      <h3 class="fw-bold text-dark mb-1">Welcome Back</h3>
+      <p class="text-muted small mb-0">Sign in to your Student or Administrator portal</p>
     </div>
 
-    <!-- Inspirational Quote Card -->
-    <div class="p-4 rounded-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); max-width: 480px;">
-      <i class="bi bi-quote text-primary fs-1 lh-1 mb-2 d-block"></i>
-      <p class="fs-5 text-white fw-medium mb-3" style="line-height: 1.4;">
-        "Every campus voice matters. Experience transparent, audited, and accountable grievance redressal."
-      </p>
-      <div class="d-flex align-items-center gap-3">
-        <div class="avatar-initials" style="background: linear-gradient(135deg, #4f46e5, #10b981);">
-          <i class="bi bi-mortarboard-fill"></i>
-        </div>
-        <div>
-          <strong class="text-white d-block">Academic Redressal Cell</strong>
-          <small class="text-white-50">Office of Student Affairs &bull; UGC Compliant</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="text-white-50 small">
-      &copy; 2026 UniResolve. Academic Grievance System.
-    </div>
-  </div>
-
-  <!-- Right Form Side -->
-  <div class="auth-split-form-container mx-auto">
-    <div class="mb-4">
-      <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2 bg-primary-subtle text-primary fw-semibold small">
-        <i class="bi bi-shield-lock-fill"></i> Secure Access
-      </div>
-      <h2 class="fw-bold text-dark fs-2 mb-1">Welcome Back</h2>
-      <p class="text-muted">Sign in to your Student or Administrator portal</p>
-    </div>
-
-    <form method="post" novalidate>
+    <!-- Login Form -->
+    <form method="post" novalidate id="loginForm">
       {% csrf_token %}
 
       {% if form.non_field_errors %}
-        <div class="alert alert-danger py-2 small mb-3 border-0">
+        <div class="alert alert-danger py-2 px-3 small mb-3 border-0 rounded-3">
           {% for error in form.non_field_errors %}
             <div><i class="bi bi-exclamation-circle-fill me-1"></i> {{ error }}</div>
           {% endfor %}
@@ -62,11 +29,13 @@
 
       <!-- Identifier -->
       <div class="mb-3">
-        <label for="{{ form.identifier.id_for_label }}" class="form-label fw-semibold">
+        <label for="{{ form.identifier.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
           Registration Number, Email, or Username
         </label>
         <div class="input-group">
-          <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person"></i></span>
+          <span class="input-group-text bg-light text-muted border-end-0">
+            <i class="bi bi-person-fill"></i>
+          </span>
           {{ form.identifier }}
         </div>
         {% if form.identifier.errors %}
@@ -77,12 +46,14 @@
       </div>
 
       <!-- Password -->
-      <div class="mb-4">
-        <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">
+      <div class="mb-3">
+        <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-dark mb-1">
           Password
         </label>
         <div class="input-group">
-          <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-key"></i></span>
+          <span class="input-group-text bg-light text-muted border-end-0">
+            <i class="bi bi-key-fill"></i>
+          </span>
           {{ form.password }}
           <button type="button" class="btn btn-outline-secondary border-start-0 toggle-password-btn" data-target="id_password" aria-label="Toggle password visibility">
             <i class="bi bi-eye"></i>
@@ -95,34 +66,43 @@
         {% endif %}
       </div>
 
-      <button type="submit" class="btn btn-primary-modern w-100 py-3 fw-bold fs-6">
-        <i class="bi bi-box-arrow-in-right me-2"></i> Sign In to Account
+      <button type="submit" class="auth-btn-primary mt-2">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Account
       </button>
     </form>
 
-    <!-- Quick Demo Access Box for Class Test Evaluation -->
-    <div class="mt-4 p-3 bg-light rounded-3 border">
+    <!-- 1-Click Demo Shortcut Box for Evaluation -->
+    <div class="evaluator-demo-box">
       <div class="d-flex align-items-center justify-content-between mb-2">
-        <span class="text-uppercase fw-bold text-muted" style="font-size: 0.72rem;">
-          <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Class-Test Evaluator Shortcuts
+        <span class="text-uppercase fw-bold text-muted" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+          <i class="bi bi-lightning-charge-fill text-warning me-1"></i> 1-Click Demo Login
         </span>
-        <span class="badge bg-secondary" style="font-size: 0.68rem;">1-Click Fill</span>
+        <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.65rem;">Quick Fill</span>
       </div>
       <div class="d-flex flex-column gap-2">
-        <button type="button" class="btn btn-sm btn-outline-primary text-start d-flex justify-content-between align-items-center" onclick="fillDemoCredentials('admin', 'Admin@12345')">
-          <span><i class="bi bi-shield-fill text-danger me-1"></i> <strong>Admin:</strong> admin</span>
-          <span class="text-muted small">Pass: Admin@12345</span>
+        <button type="button" class="evaluator-demo-btn" onclick="fillDemoCredentials('admin', 'Admin@12345')">
+          <div>
+            <i class="bi bi-shield-fill text-danger me-1"></i>
+            <strong>Admin:</strong> admin
+          </div>
+          <span class="text-muted small">Admin@12345</span>
         </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary text-start d-flex justify-content-between align-items-center" onclick="fillDemoCredentials('STU2024001', 'Student@12345')">
-          <span><i class="bi bi-mortarboard-fill text-primary me-1"></i> <strong>Student:</strong> STU2024001</span>
-          <span class="text-muted small">Pass: Student@12345</span>
+        <button type="button" class="evaluator-demo-btn" onclick="fillDemoCredentials('STU2024001', 'Student@12345')">
+          <div>
+            <i class="bi bi-mortarboard-fill text-primary me-1"></i>
+            <strong>Student:</strong> STU2024001
+          </div>
+          <span class="text-muted small">Student@12345</span>
         </button>
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="text-center mt-4 pt-3 border-top">
-      <span class="text-muted small">Are you a new student?</span>
-      <a href="{% url 'register' %}" class="fw-bold ms-1 text-primary">Register Student Account</a>
+      <span class="text-muted small">New student on campus?</span>
+      <a href="{% url 'register' %}" class="fw-bold ms-1 text-primary text-decoration-none">
+        Register Account &rarr;
+      </a>
     </div>
   </div>
 </div>

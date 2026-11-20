@@ -175,30 +175,33 @@
 
 {% else %}
   <!-- Unauthenticated Public Layout Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--navy-dark); border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-    <div class="container py-1">
-      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{% url 'landing' %}">
-        <div class="sidebar-brand-icon" style="width: 36px; height: 36px; font-size: 1.2rem; background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+  <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom shadow-sm py-2">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 text-dark" href="{% url 'landing' %}">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #06b6d4); display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);">
           <i class="bi bi-shield-fill-check"></i>
         </div>
-        UniResolve
+        <span>UniResolve</span>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill" style="font-size: 0.65rem; font-weight: 600;">Academic Portal</span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navPublic" aria-controls="navPublic" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navPublic" aria-controls="navPublic" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navPublic">
-        <ul class="navbar-nav ms-auto align-items-center gap-3 mt-3 mt-lg-0">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-2 mt-2 mt-lg-0">
           <li class="nav-item">
-            <a class="nav-link text-white fw-medium" href="{% url 'landing' %}">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-outline-light btn-sm px-3 fw-semibold" href="{% url 'login' %}">
-              <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+            <a class="nav-link text-secondary fw-semibold px-3 py-1.5 rounded-3" href="{% url 'landing' %}">
+              <i class="bi bi-house-door me-1"></i> Home
             </a>
           </li>
           <li class="nav-item">
-            <a class="btn btn-primary-modern btn-sm px-3 fw-semibold" href="{% url 'register' %}">
-              <i class="bi bi-person-plus-fill me-1"></i> Student Register
+            <a class="btn btn-sm btn-outline-primary fw-semibold px-3 py-1.5 rounded-3 d-inline-flex align-items-center gap-1.5" href="{% url 'login' %}">
+              <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-sm btn-primary fw-semibold px-3 py-1.5 rounded-3 d-inline-flex align-items-center gap-1.5 shadow-sm text-white" style="background: linear-gradient(135deg, #4f46e5, #4338ca); border: none;" href="{% url 'register' %}">
+              <i class="bi bi-person-plus-fill"></i> Student Register
             </a>
           </li>
         </ul>
